@@ -2,6 +2,12 @@
 
 from odoo import models, fields, api
 
+class LibraryCategory(models.Model):
+    _name = 'library.category'
+
+    name = fields.Char(string="Nombre")
+    active = fields.Boolean("Esta Activo")
+
 class LibraryBook(models.Model):
     _name = 'library.book'
 
@@ -10,3 +16,5 @@ class LibraryBook(models.Model):
     image = fields.Binary()
     pages = fields.Integer(string="# Paginas")
     isbn = fields.Char(string="ISBN",size=13)
+    description = fields.Html(string="Descripción")
+    category_id = fields.Many2one("library.category",string="Category")

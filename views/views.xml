@@ -7,12 +7,16 @@
     <field name="arch" type="xml">
       <form string="Form Book">
         <sheet>
-          <field name="image"/>
+          <field name="image" widget="image"/>
           <group>
             <field name="name"/>
             <field name="active"/>
             <field name="pages"/>
             <field name="isbn"/>
+            <field name="category_id"/>
+          </group>
+          <group>
+            <field name="description"/>
           </group>
         </sheet>
       </form>
