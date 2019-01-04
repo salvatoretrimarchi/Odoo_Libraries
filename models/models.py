@@ -2,12 +2,6 @@
 
 from odoo import models, fields, api
 
-class LibraryCategory(models.Model):
-    _name = 'library.category'
-
-    name = fields.Char(string="Nombre")
-    active = fields.Boolean("Esta Activo")
-
 class LibraryBook(models.Model):
     _name = 'library.book'
 
