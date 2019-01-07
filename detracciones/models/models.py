@@ -11,8 +11,3 @@ class detracciones(models.Model):
     codigo = fields.Char(string="Código")
     desc = fields.Text(string="Descripción")
     detrac = fields.Float(string="Detraccion")
-
-#class AccountInvoice(models.Model):
-#    _inherit = "account.invoice"
-#
-#    detrac = fields.One2many
