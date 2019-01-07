@@ -5,7 +5,7 @@ from odoo import models, fields, api
 
 class detracciones(models.Model):
     _name = 'sunat.detracciones'
-    _description = 'Codigos de Detracciones'
+    _description = "Codigos de Detracciones"
 
     codigo = fields.Char(string="Código")
     desc = fields.Text(string="Descripción")
