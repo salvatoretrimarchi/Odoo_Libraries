@@ -6,7 +6,7 @@
     <field name="inherit_id" ref="base.view_partner_form"/>
     <field name="arch" type="xml">
       <field name="vat" position="after">
-        <field name="detrac_id"/>
+        <field string="Detraccion" name="detrac_id"/>
       </field>
     </field>
   </record>
@@ -17,7 +17,7 @@
     <field name="inherit_id" ref="account.invoice_form"/>
     <field name="arch" type="xml">
       <field name="payment_term_id" position="after">
-        <field name="detrac_id"/>
+        <field string="Detraccion" name="detrac_id" attrs="{'readonly':[['state','not in',['draft']]]}"/>
       </field>
     </field>
   </record>

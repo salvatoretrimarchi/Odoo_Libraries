@@ -27,6 +27,6 @@ class detracciones(models.Model):
     _inherit = "sunat.detracciones"
 
     proveedor_ids = fields.One2many(
-        'res.partner', 'detrac_id', string="Proveedores")
+        'res.partner', 'detrac_id', 'Proveedores')
     factura_ids = fields.One2many(
-        'account.invoice', 'detrac_id', string="Facturas")
+        'account.invoice', 'detrac_id', 'Facturas')

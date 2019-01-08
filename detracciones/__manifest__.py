@@ -3,11 +3,10 @@
     'name': "Sunat Detracciones",
 
     'summary': """
-        Short (1 phrase/line) summary of the module's purpose, used as
-        subtitle on modules listing or apps.openerp.com""",
+        Listado de los codigos de las detracciones""",
 
     'description': """
-        Long description of module's purpose
+        Es una tabla maestra que sirve a las demas
     """,
 
     'author': "My Company",
