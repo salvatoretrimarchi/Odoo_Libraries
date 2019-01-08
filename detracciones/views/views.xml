@@ -10,7 +10,11 @@
           <group>
             <field name="codigo"/>
             <field name="desc"/>
-            <field name="detrac"/>
+          </group>
+          <group>
+              <label for="amount"/>
+              <field name="detrac" class="oe_inline"/>
+              <span class="o_form_label oe_inline">%</span>
           </group>
         </sheet>
       </form>
