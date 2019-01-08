@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class proveedor(models.Model):
@@ -16,9 +19,8 @@ class account_invoice(models.Model):
 
     @api.onchange('partner_id')
     def _onchange_proveedor(self):
-        print 'Entro'
-        print self
-        self.detrac_id = self.partner_id.detrac_id
+#        if len(self.detrac_id) <= 0 :
+            self.detrac_id = self.partner_id.detrac_id
 
 
 class detracciones(models.Model):
