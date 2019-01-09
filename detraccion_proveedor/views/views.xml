@@ -26,13 +26,16 @@
   <!  -->
 
   <!-- Factura Proveedor -->
-  <record id="detraccino_form_view_factura" model="ir.ui.view">
+  <record id="detraccion_form_view_factura" model="ir.ui.view">
     <field name="name">detraccion.form.factura</field>
     <field name="model">account.invoice</field>
     <field name="inherit_id" ref="account.invoice_supplier_form"/>
     <field name="arch" type="xml">
       <field name="reference" position="after">
         <field string="Detraccion" name="detrac_id" attrs="{'readonly':[['state','not in',['draft']]]}"/>
+      </field>
+      <field name="payments_widget" position="before" >
+        <field name="detraccion" />
       </field>
     </field>
   </record>
