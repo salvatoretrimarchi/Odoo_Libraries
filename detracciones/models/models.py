@@ -7,11 +7,10 @@ class detracciones(models.Model):
     _description = "Codigos de Detracciones"
 
     name = fields.Text(string="Descripción")
-    detrac = fields.Float(string="Detraccion")
-#    detrac = fields.Integer(string="Detraccion")
+    detrac = fields.Integer(string="Detraccion")
     detracmack = fields.Char(string="Porcentaje",compute="_obtener_detraccion")
 
     def _obtener_detraccion(self):
         for rec in self:
             detrac = str(rec.detrac)
-            rec.detracmack = "{} %".format(detrac)
+            rec.detracmack = "{}%".format(detrac)
