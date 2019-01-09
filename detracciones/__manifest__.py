@@ -26,6 +26,7 @@
     'data': [
         'views/views.xml',
         'views/tipo_doc.xml',
+        'views/bill.xml',
         'security/ir.model.access.csv',
         'data/data_detracciones.xml',
         'data/data_document_type.xml',

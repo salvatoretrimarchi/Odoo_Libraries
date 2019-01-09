@@ -1,0 +1,15 @@
+<odoo>
+
+    <!-- Factura Proveedor -->
+    <record id="document_type_form_view_factura" model="ir.ui.view">
+        <field name="name">document_type.form.factura</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_supplier_form"/>
+        <field name="arch" type="xml">
+            <field name="reference" position="after">
+                <field string="Document Type" name="document_type_id"  attrs="{'readonly':[['state','not in',['draft']]]}"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>
