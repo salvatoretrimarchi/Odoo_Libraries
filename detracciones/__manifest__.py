@@ -20,13 +20,15 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base'],
+    'depends': ['base','account'],
 
     # always loaded
     'data': [
         'views/views.xml',
+        'views/tipo_doc.xml',
         'security/ir.model.access.csv',
         'data/data_detracciones.xml',
+        'data/data_document_type.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

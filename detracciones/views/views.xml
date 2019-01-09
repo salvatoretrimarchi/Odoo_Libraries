@@ -41,8 +41,8 @@
   </record>
 
   <!-- Menus -->
-  <menuitem id="sunat_menu_root" name="Detracciones" sequence="1" />
-  <menuitem id="sunat_detracciones_menu_category" name="Detracciones" sequence="1" parent="sunat_menu_root" />
-  <menuitem id="action_sunat_detracciones_menu" name="Detracciones" sequence="1" parent="sunat_detracciones_menu_category" action="action_sunat_detracciones" />
+  <menuitem id="sunat_menu_root" name="Sunat" sequence="1" />
+  <menuitem id="sunat_detracciones_menu_category" name="Detracciones" sequence="1" parent="sunat_menu_root" action="action_sunat_detracciones"/>
+  <!--menuitem id="action_sunat_detracciones_menu" name="Detracciones" sequence="1" parent="sunat_detracciones_menu_category" action="action_sunat_detracciones" /-->
 
 </odoo>
