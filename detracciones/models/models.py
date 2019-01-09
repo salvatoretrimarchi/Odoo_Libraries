@@ -8,6 +8,7 @@ class detracciones(models.Model):
 
     name = fields.Text(string="Descripción")
     detrac = fields.Float(string="Detraccion")
+#    detrac = fields.Integer(string="Detraccion")
     detracmack = fields.Char(string="Porcentaje",compute="_obtener_detraccion")
 
     def _obtener_detraccion(self):
