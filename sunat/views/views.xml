@@ -39,6 +39,7 @@
       <field name="amount_total_signed" position="before">
         <field name="detraccion" sum="Total"/>
         <field name="detraccion_paid"/>
+        <field name="total_pagar"/>
       </field>
     </field>
   </record>
