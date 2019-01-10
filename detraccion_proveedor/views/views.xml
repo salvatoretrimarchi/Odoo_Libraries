@@ -34,7 +34,7 @@
       <field name="reference" position="after">
         <field string="Detraccion" name="detrac_id" attrs="{'readonly':[['state','not in',['draft']]]}"/>
       </field>
-      <field name="payments_widget" position="before" >
+      <field name="payments_widget" position="before">
         <field name="detraccion" />
       </field>
     </field>
@@ -45,9 +45,20 @@
     <field name="model">account.invoice</field>
     <field name="inherit_id" ref="account.invoice_supplier_tree"/>
     <field name="arch" type="xml">
-      <field name="amount_total_signed" position="before" >
+      <field name="amount_total_signed" position="before">
         <field name="detraccion" sum="Total"/>
       </field>
+    </field>
+  </record>
+
+  <record id="prueba" model="ir.actions.server">
+    <field name="name">Prueba</field>
+    <field name="model_id" ref="model_account_invoice"/>
+    <field name="binding_model_id" ref="account.model_account_invoice"/>
+    <field name="state">code</field>
+    <field name="code">
+for rec in records:
+    rec.action_prueba()
     </field>
   </record>
 

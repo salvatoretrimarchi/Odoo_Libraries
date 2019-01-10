@@ -28,6 +28,11 @@ class account_invoice(models.Model):
             record.detraccion = record.amount_total * \
                 (record.detrac_id.detrac / 100)
 
+    @api.multi
+    def action_prueba(self):
+        for rec in self:
+            rec.reference = 'FacturaDePrueba'
+        return True
 
 class detracciones(models.Model):
     _inherit = "sunat.detracciones"
