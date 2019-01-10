@@ -1,60 +1,110 @@
 <odoo>
-  <data>
-    <!-- explicit list view definition -->
-    <!--
-    <record model="ir.ui.view" id="sunat.list">
-      <field name="name">sunat list</field>
-      <field name="model">sunat.sunat</field>
-      <field name="arch" type="xml">
-        <tree>
-          <field name="name"/>
-          <field name="value"/>
-          <field name="value2"/>
-        </tree>
+
+  <!-- Form View -->
+  <record id="detraccion_form_view" model="ir.ui.view">
+    <field name="name">sunat.detraccion.form.view</field>
+    <field name="model">sunat.detracciones</field>
+    <field name="arch" type="xml">
+      <form string="Form Detracciones">
+        <sheet>
+          <group>
+            <field name="name"/>
+            <label for="detrac"/>
+            <div>
+              <field name="detrac" class="oe_inline"/>
+              <span class="o_form_label oe_inline">%</span>
+            </div>
+          </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <!-- Thee -->
+  <record id="detracciones_tree_view" model="ir.ui.view">
+    <field name="name">sunat.detracciones.tree.view</field>
+    <field name="model">sunat.detracciones</field>
+    <field name="arch" type="xml">
+      <tree string="Tree Detracciones">
+        <field name="name"/>
+        <field name="detracmack"/>
+      </tree>
+    </field>
+  </record>
+
+  <!-- Action Sunat -->
+  <record id="action_sunat_detracciones" model="ir.actions.act_window">
+    <field name="name">Detracciones Sunat</field>
+    <field name="type">ir.actions.act_window</field>
+    <field name="res_model">sunat.detracciones</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+
+  <!-- Menus -->
+  <menuitem id="sunat_menu_root" name="Sunat" sequence="1" />
+  <menuitem id="sunat_detracciones_menu_category" name="Detracciones" sequence="1" parent="sunat_menu_root" action="action_sunat_detracciones"/>
+  <!--menuitem id="action_sunat_detracciones_menu" name="Detracciones" sequence="1" parent="sunat_detracciones_menu_category" action="action_sunat_detracciones" /-->
+
+  <!-- Detraccion en el Proveedor -->
+  <record id="detraccion_form_view_proveedor" model="ir.ui.view">
+    <field name="name">detraccion.form.proveedor</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_partner_form"/>
+    <field name="arch" type="xml">
+      <field name="vat" position="after">
+        <field string="Detraccion" name="detrac_id"/>
       </field>
-    </record>
-    -->
+    </field>
+  </record>
 
-    <!-- actions opening views on models -->
-    <!--
-    <record model="ir.actions.act_window" id="sunat.action_window">
-      <field name="name">sunat window</field>
-      <field name="res_model">sunat.sunat</field>
-      <field name="view_mode">tree,form</field>
-    </record>
-    -->
-
-    <!-- server action to the one above -->
-    <!--
-    <record model="ir.actions.server" id="sunat.action_server">
-      <field name="name">sunat server</field>
-      <field name="model_id" ref="model_sunat_sunat"/>
-      <field name="state">code</field>
-      <field name="code">
-        action = {
-          "type": "ir.actions.act_window",
-          "view_mode": "tree,form",
-          "res_model": self._name,
-        }
+  <!-- Factura Cliente
+  <record id="detraccion_form_view_factura" model="ir.ui.view">
+    <field name="name">detraccion.form.factura</field>
+    <field name="model">account.invoice</field>
+    <field name="inherit_id" ref="account.invoice_form"/>
+    <field name="arch" type="xml">
+      <field name="payment_term_id" position="after">
+        <field string="Detraccion" name="detrac_id" attrs="{'readonly':[['state','not in',['draft']]]}"/>
       </field>
-    </record>
-    -->
+    </field>
+  </record>
+  <!  -->
 
-    <!-- Top menu item -->
-    <!--
-    <menuitem name="sunat" id="sunat.menu_root"/>
-    -->
-    <!-- menu categories -->
-    <!--
-    <menuitem name="Menu 1" id="sunat.menu_1" parent="sunat.menu_root"/>
-    <menuitem name="Menu 2" id="sunat.menu_2" parent="sunat.menu_root"/>
-    -->
-    <!-- actions -->
-    <!--
-    <menuitem name="List" id="sunat.menu_1_list" parent="sunat.menu_1"
-              action="sunat.action_window"/>
-    <menuitem name="Server to list" id="sunat" parent="sunat.menu_2"
-              action="sunat.action_server"/>
-    -->
-  </data>
+  <!-- Factura Proveedor -->
+  <record id="detraccion_form_view_factura" model="ir.ui.view">
+    <field name="name">detraccion.form.factura</field>
+    <field name="model">account.invoice</field>
+    <field name="inherit_id" ref="account.invoice_supplier_form"/>
+    <field name="arch" type="xml">
+      <field name="reference" position="after">
+        <field string="Detraccion" name="detrac_id" attrs="{'readonly':[['state','not in',['draft']]]}"/>
+      </field>
+      <field name="payments_widget" position="before">
+        <field name="detraccion" />
+      </field>
+    </field>
+  </record>
+
+  <record id="detraccion_tree_view_factura" model="ir.ui.view">
+    <field name="name">detraccion.tree.factura</field>
+    <field name="model">account.invoice</field>
+    <field name="inherit_id" ref="account.invoice_supplier_tree"/>
+    <field name="arch" type="xml">
+      <field name="amount_total_signed" position="before">
+        <field name="detraccion" sum="Total"/>
+      </field>
+    </field>
+  </record>
+
+  <record id="prueba" model="ir.actions.server">
+    <field name="name">Prueba</field>
+    <field name="model_id" ref="model_account_invoice"/>
+    <field name="binding_model_id" ref="account.model_account_invoice"/>
+    <field name="state">code</field>
+    <field name="code">
+for rec in records:
+    rec.action_prueba()
+    </field>
+  </record>
+
 </odoo>
