@@ -47,7 +47,7 @@ class account_invoice(models.Model):
     # Hide or not Apply Retention
     hide_apply_retention = fields.Boolean(
         string='Hide', compute="_compute_hide_apply_retention")
-    #detraccion_paid = fields.Boolean()
+    detraccion_paid = fields.Boolean()
 
     # Method to hide Apply Retention
     @api.depends('document_type_id')
@@ -76,4 +76,11 @@ class account_invoice(models.Model):
     def action_prueba(self):
         for rec in self:
             rec.reference = 'FacturaDePrueba'
+        return True
+
+    # Action Paid Detraccion
+    @api.multi
+    def action_paid_detraccion(self):
+        for rec in self:
+            rec.detraccion_paid = True
         return True
