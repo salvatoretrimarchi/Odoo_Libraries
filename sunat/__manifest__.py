@@ -3,15 +3,14 @@
     'name': "Sunat",
 
     'summary': """
-        Short (1 phrase/line) summary of the module's purpose, used as
-        subtitle on modules listing or apps.openerp.com""",
+        Los procesos que pide sunat el la contabilidad""",
 
     'description': """
-        Long description of module's purpose
+        Se toca temas como la detraccion y la retencion
     """,
 
     'author': "Optimiza",
-    'website': "http://www.yourcompany.com",
+    'website': "http://grupooptimiza.la",
 
     # Categories can be used to filter modules in modules listing
     # Check https://github.com/odoo/odoo/blob/12.0/odoo/addons/base/data/ir_module_category_data.xml
@@ -26,11 +25,11 @@
     # always loaded
     'data': [
         'security/ir.model.access.csv',
-        'views/views.xml',
+        'views/detraccion.xml',
         'views/document_type.xml',
-        'views/templates.xml',
-        'views/bill.xml',
+        'views/views.xml',
         'views/menu.xml',
+        'views/templates.xml',
         'data/data_detracciones.xml',
         'data/data_document_type.xml',
     ],

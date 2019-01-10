@@ -28,7 +28,7 @@
         </field>
     </record>
 
-    <!-- Action Sunat -->
+    <!-- Action Document Type -->
     <record id="action_sunat_document_type" model="ir.actions.act_window">
         <field name="name">Tipo de Documento Sunat</field>
         <field name="type">ir.actions.act_window</field>
