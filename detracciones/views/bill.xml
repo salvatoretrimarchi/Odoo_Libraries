@@ -8,6 +8,8 @@
         <field name="arch" type="xml">
             <field name="reference" position="after">
                 <field string="Document Type" name="document_type_id"  attrs="{'readonly':[['state','not in',['draft']]]}"/>
+                <field name="hide_apply_retention" invisible="1"/>
+                <field name="apply_retention" attrs="{'readonly':[['state','not in',['draft']]],'invisible':[('hide_apply_retention', '=', True)]}"/>
             </field>
         </field>
     </record>
