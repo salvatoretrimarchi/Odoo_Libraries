@@ -27,9 +27,10 @@
     'data': [
         'security/ir.model.access.csv',
         'views/views.xml',
-        'views/templates.xml',
         'views/document_type.xml',
+        'views/templates.xml',
         'views/bill.xml',
+        'views/menu.xml',
         'data/data_detracciones.xml',
         'data/data_document_type.xml',
     ],

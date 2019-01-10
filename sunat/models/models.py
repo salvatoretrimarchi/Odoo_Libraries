@@ -24,45 +24,54 @@ class proveedor(models.Model):
     detrac_id = fields.Many2one('sunat.detracciones', 'Detraccion')
 
 
-class tipo_doc(models.Model):
+class document_type(models.Model):
     _name = 'sunat.document_type'
     _description = "Tipos de Documentos"
 
     name = fields.Text(string="Description", translate=True)
-    number = fields.Integer(string="Number", translate=True)
+    number = fields.Char(string="Number",size=2, translate=True)
 
 
 class account_invoice(models.Model):
     _inherit = "account.invoice"
 
+    # Detraction
     detrac_id = fields.Many2one('sunat.detracciones', 'Detraccion')
+    # Value of the Detraction
     detraccion = fields.Monetary(
         string="Detraccion", compute="_calcular_detrac", store=True)
+    # Document Type
     document_type_id = fields.Many2one('sunat.document_type', 'Document Type')
+    # Apply Retention
+    apply_retention = fields.Boolean(string="Apply Retention")
+    # Hide or not Apply Retention
     hide_apply_retention = fields.Boolean(
         string='Hide', compute="_compute_hide_apply_retention")
-    apply_retention = fields.Boolean(string="Apply Retention")
+    #detraccion_paid = fields.Boolean()
 
+    # Method to hide Apply Retention
     @api.depends('document_type_id')
     def _compute_hide_apply_retention(self):
-            # simple logic, but you can do much more here
-        if self.document_type_id.number == 2:
+        if self.document_type_id.number == '02':
             self.hide_apply_retention = False
         else:
             self.hide_apply_retention = True
 
+    # Load the retention of the selected provider
     @api.onchange('partner_id')
     def _onchange_proveedor(self):
-        #        if len(self.detrac_id) <= 0 :
+        #if len(self.detrac_id) <= 0 :
         self.detrac_id = self.partner_id.detrac_id
 
+    # Calculate the value of the Detraction
     @api.depends('amount_total', 'detrac_id')
     @api.multi
     def _calcular_detrac(self):
         for record in self:
             record.detraccion = record.amount_total * \
                 (record.detrac_id.detrac / 100)
-
+    
+    # Trial Action
     @api.multi
     def action_prueba(self):
         for rec in self:

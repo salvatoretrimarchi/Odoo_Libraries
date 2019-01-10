@@ -40,11 +40,6 @@
     <field name="view_mode">tree,form</field>
   </record>
 
-  <!-- Menus -->
-  <menuitem id="sunat_menu_root" name="Sunat" sequence="1" />
-  <menuitem id="sunat_detracciones_menu_category" name="Detracciones" sequence="1" parent="sunat_menu_root" action="action_sunat_detracciones"/>
-  <!--menuitem id="action_sunat_detracciones_menu" name="Detracciones" sequence="1" parent="sunat_detracciones_menu_category" action="action_sunat_detracciones" /-->
-
   <!-- Detraccion en el Proveedor -->
   <record id="detraccion_form_view_proveedor" model="ir.ui.view">
     <field name="name">detraccion.form.proveedor</field>
@@ -56,19 +51,6 @@
       </field>
     </field>
   </record>
-
-  <!-- Factura Cliente
-  <record id="detraccion_form_view_factura" model="ir.ui.view">
-    <field name="name">detraccion.form.factura</field>
-    <field name="model">account.invoice</field>
-    <field name="inherit_id" ref="account.invoice_form"/>
-    <field name="arch" type="xml">
-      <field name="payment_term_id" position="after">
-        <field string="Detraccion" name="detrac_id" attrs="{'readonly':[['state','not in',['draft']]]}"/>
-      </field>
-    </field>
-  </record>
-  <!  -->
 
   <!-- Factura Proveedor -->
   <record id="detraccion_form_view_factura" model="ir.ui.view">

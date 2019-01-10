@@ -36,7 +36,4 @@
         <field name="view_mode">tree,form</field>
     </record>
 
-    <!-- Menus -->
-    <menuitem id="sunat_document_type_menu_category" name="Tipo Documento" sequence="1" parent="sunat_menu_root" action="action_sunat_document_type" />
-
 </odoo>
