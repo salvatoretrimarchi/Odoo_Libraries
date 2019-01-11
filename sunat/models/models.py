@@ -49,7 +49,7 @@ class account_invoice(models.Model):
         string='Hide', compute="_compute_hide_apply_retention")
     detraccion_paid = fields.Boolean()
     # Total a Pagar
-    total_pagar = fields.Float(string="Total a Pagar2",compute="_total_pagar_Factura")
+    total_pagar = fields.Monetary(string="Total a Pagar2",compute="_total_pagar_Factura")
 
     # Method to hide Apply Retention
     @api.depends('document_type_id')
