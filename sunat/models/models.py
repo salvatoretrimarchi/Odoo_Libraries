@@ -45,8 +45,8 @@ class account_invoice(models.Model):
     # Apply Retention
     apply_retention = fields.Boolean(string="Apply Retention")
     # Hide or not Apply Retention
-    hide_apply_retention = fields.Boolean(
-        string='Hide', compute="_compute_hide_apply_retention")
+    hide_apply_retention = fields.Boolean(string='Hide', compute="_compute_hide_apply_retention")
+    # Detraction Paid
     detraccion_paid = fields.Boolean()
     # Total a Pagar
     total_pagar = fields.Monetary(string="Total a Pagar2",compute="_total_pagar_Factura")
