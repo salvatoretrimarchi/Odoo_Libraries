@@ -1,6 +1,6 @@
 <odoo>
 
-  <!-- Detraccion en el Proveedor -->
+  <!-- Formulario - Detraccion en el Proveedor -->
   <record id="detraccion_form_view_proveedor" model="ir.ui.view">
     <field name="name">detraccion.form.proveedor</field>
     <field name="model">res.partner</field>
@@ -12,7 +12,7 @@
     </field>
   </record>
 
-  <!-- Detraccion Factura Proveedor -->
+  <!-- Formulario - Detraccion Factura Proveedor -->
   <record id="detraccion_form_view_factura" model="ir.ui.view">
     <field name="name">detraccion.form.factura</field>
     <field name="model">account.invoice</field>
@@ -30,7 +30,7 @@
     </field>
   </record>
 
-  <!-- Detraccion Tabla Factura -->
+  <!-- Vista - Detraccion Factura -->
   <record id="detraccion_tree_view_factura" model="ir.ui.view">
     <field name="name">detraccion.tree.factura</field>
     <field name="model">account.invoice</field>
@@ -38,8 +38,8 @@
     <field name="arch" type="xml">
       <field name="amount_total_signed" position="before">
         <field name="detraccion" sum="Total"/>
-        <field name="detraccion_paid"/>
-        <field name="total_pagar"/>
+        <field name="detraccion_paid" invisible="1"/>
+        <field name="total_pagar" sum="Total"/>
       </field>
     </field>
   </record>
