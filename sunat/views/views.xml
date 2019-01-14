@@ -44,18 +44,6 @@
     </field>
   </record>
 
-  <!-- Accion de Pagar la detraccion de una Factura -->
-  <record id="paid_detraccion_invoice" model="ir.actions.server">
-    <field name="name">Pago de Detraccion</field>
-    <field name="model_id" ref="model_account_invoice"/>
-    <field name="binding_model_id" ref="account.model_account_invoice"/>
-    <field name="state">code</field>
-    <field name="code">
-for rec in records:
-    rec.action_paid_detraccion()
-    </field>
-  </record>
-
   <!-- Accion de Prueba -->
   <!-- <record id="prueba" model="ir.actions.server">
     <field name="name">Prueba</field>
