@@ -39,7 +39,7 @@ class account_invoice(models.Model):
     detrac_id = fields.Many2one('sunat.detracciones', 'Detraccion')
     # Value of the Detraction
     detraccion = fields.Monetary(
-        string="Detraccion", compute="_calcular_detrac", store=True)
+        string="Detraction Value", compute="_calcular_detrac", store=True)
     # Document Type
     document_type_id = fields.Many2one('sunat.document_type', 'Document Type')
     # Apply Retention
