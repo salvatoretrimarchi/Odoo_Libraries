@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
+import base64
 
 
 class detracciones(models.Model):
@@ -59,6 +60,15 @@ class account_invoice(models.Model):
     # Total a Pagar
     total_pagar = fields.Monetary(
         string="Total a Pagar2", compute="_total_pagar_factura")
+    #Experimentos
+    file_txt = fields.Binary(compute="_generate_txt")
+    file_name = fields.Char()
+
+    def _generate_txt(self):
+        content = ''
+        for rec in self:
+            rec.file_name = 'txt_file'
+            rec.file_txt = base64.encodestring(content.encode('ISO-8859-1'))
 
     # Method to hide Apply Retention
     @api.depends('document_type_id')
