@@ -5,6 +5,7 @@
     <menuitem id="sunat_detracciones_menu_category" name="Detracciones" sequence="1" parent="sunat_menu_root" action="action_sunat_detracciones"/>
     <!--menuitem id="action_sunat_detracciones_menu" name="Detracciones" sequence="1" parent="sunat_detracciones_menu_category" action="action_sunat_detracciones" /-->
     <menuitem id="sunat_document_type_menu_category" name="Tipo Documento" sequence="1" parent="sunat_menu_root" action="action_sunat_document_type" />
+    <menuitem id="sunat_document_type_identity_menu_category" name="Tipo Documento de Identidad" sequence="1" parent="sunat_menu_root" action="action_sunat_document_type_identity" />
 
     <!-- <report
             id="account_invoices_prueba"

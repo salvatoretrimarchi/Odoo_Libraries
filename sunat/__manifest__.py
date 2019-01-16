@@ -28,12 +28,13 @@
         'security/ir.model.access.csv',
         'views/detraccion.xml',
         'views/document_type.xml',
+        'views/document_type_identity.xml',
         'views/views.xml',
         'views/templates.xml',
         'views/menu.xml',
         'data/data_detracciones.xml',
-        # 'data/data_document_type.xml',
         'data/sunat.document_type.csv',
+        'data/sunat.document_type_identity.csv',
     ],
     # only loaded in demonstration mode
     'demo': [
