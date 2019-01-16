@@ -37,10 +37,11 @@
     <field name="inherit_id" ref="account.invoice_supplier_tree"/>
     <field name="arch" type="xml">
       <field name="amount_total_signed" position="after">
-        <field name="detraccion" sum="Total"/>
+        <field name="file_name" invisible="1"/> 
+        <field name="detraccion" sum="Total"/> 
         <field name="detraccion_paid"/>
         <field name="total_pagar" sum="Total" invisible="1"/>
-        <field name="file_txt" widget="binary" filename="file_name"/>
+        <field name="file_txt" filename="file_name" widget="binary"/>
       </field>
     </field>
   </record>
