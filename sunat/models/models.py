@@ -77,6 +77,18 @@ class customs_code(models.Model):
         for rec in self:
             rec.name = "%s %s" % (rec.number or '', rec.description or '')
 
+class classification_goods(models.Model):
+    _name = 'sunat.classification_goods'
+    _description = "Claseficación de Bienes"
+
+    name = fields.Text(compute="_classification_goods_full")
+    number = fields.Char(string="Numero", size=3, translate=True,index=True)
+    description = fields.Text(string="Descripción", translate=True)
+
+    def _classification_goods_full(self):
+        for rec in self:
+            rec.name = "%s %s" % (rec.number or '', rec.description or '')
+
 class account_invoice(models.Model):
     _inherit = "account.invoice"
 
@@ -115,23 +127,20 @@ class account_invoice(models.Model):
     date_detraction = fields.Date(string="Fecha de detracción")
     num_detraction = fields.Char(string="Número de detración")
     proof_mark = fields.Char(string="Marca del comprobante")
-    classifier_good = fields.Selection(string="Clasificación del Bien", selection=[
-                                       ('20 servicio', '20 servicio')])
+    classifier_good = fields.Many2one('sunat.classification_goods','Clasificación del Bien')
 
     # Documento que Modifica
     date_document_modifies = fields.Date(string="Fecha del documento que modifica")
-    type_document_modifies = fields.Selection(
-        string="Tipo de Documento que Modifica", selection=[('01 factura', '01 factura')])
+    type_document_modifies = fields.Many2one('sunat.document_type', 'Tipo de Documento que Modifica')
     num_document_modifies = fields.Char(
         string="Numero del documento que modifica")
-    code_dua = fields.Selection(string="Código DUA", selection=[
-                                ('019-Tumbes', '019-Tumbes')])
+    code_dua = fields.Many2one('sunat.customs_code','Código DUA')
     num_dua = fields.Char(string="Número DUA")
 
     def _generate_txt(self):
         content = '-'
         for rec in self:
-            content = "%s00|%s|%s|%s|%s|%s|%s|%s|%s||%s|%s|%s|%s|%s|%s|%s|%s|%s|%s||%s|%s|%s-%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % (
+            content = "%s00|%s|%s|%s|%s|%s|%s|%s|%s||%s|%s|%s|%s|%s|%s|%s|%s|%s|%s||%s|%s|%s%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % (
                 rec.move_id.date.strftime("%Y%m") or '',    #Periodo del Asiento -> 1
                 rec.move_id.name.replace("/", "") or '',    # Correlativo de Factura -> 2
                 '--' or '',                                 # Correlativo de todos los asientos no solo facturas -> 3
@@ -155,17 +164,17 @@ class account_invoice(models.Model):
                 # Dejar en blando -> 21
                 '--' or '', # Otros de las Lineas -> 22
                 rec.residual or '', # Total Adeudado -> 23
-                rec.currency_type_id.number or '',  #Tipo de moneda
+                '' or '',  #Tipo de moneda
                 rec.currency_id.name or '',  #Tipo de moneda
                 rec.date_document_modifies or '',  # Fecha del documento que modifica
-                rec.type_document_modifies or '',  # Tipo del documento que modifica
+                rec.type_document_modifies.number or '',  # Tipo del documento que modifica
                 rec.num_document_modifies or '',  # Numero del documento que modifica
-                rec.code_dua or '',  # Codigo DUA
+                rec.code_dua.number or '',  # Codigo DUA
                 rec.num_dua or '',  # Numero DUA
                 rec.date_detraction or '',  # Fecha de Detracciones
                 rec.num_detraction or '',  # Numero de Detracciones
                 rec.proof_mark or '',  # Marca de Comprobante
-                rec.classifier_good or ''  # Clasificador de Bienes
+                rec.classifier_good.number or ''  # Clasificador de Bienes
             )
             rec.file_txt = base64.encodestring(content.encode('ISO-8859-1'))
 
