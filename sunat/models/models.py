@@ -138,13 +138,34 @@ class account_invoice(models.Model):
     code_dua = fields.Many2one('sunat.customs_code', 'Código DUA')
     num_dua = fields.Char(string="Número DUA")
 
+    # Para filtrar
+    month_year_inv = fields.Char(compute="_get_month_invoice", store=True)
+
+    @api.depends('date_invoice')
+    @api.multi
+    def _get_month_invoice(self):
+        for rec in self:
+            rec.month_year_inv = rec.date_invoice.strftime("%m%Y")
+
     def _generate_txt_content(self):
         content = '-'
         for rec in self:
+            correlativo = ""
+            _logger.info(rec.date_invoice.strftime("%m%Y") + " like " + str(rec.month_year_inv))
+            dominio = [('month_year_inv', 'like', rec.date_invoice.strftime("%m%Y"))]
+            facturas = self.env['account.invoice'].search(dominio, order="id asc")
+            contador = 0
+            for inv in facturas:
+                contador = contador + 1
+                _logger.info(str(inv.id) + " - " + str(inv.number) + " - " + inv.date_invoice.strftime(
+                    "%d/%m/%Y") + " - " + inv.month_year_inv)
+                if inv.number == rec.number:
+                    correlativo = "%s" % (contador)
+
             content = "%s00|%s|%s|%s|%s|%s|%s|%s|%s||%s|%s|%s|%s|%s|%s|%s|%s|%s|%s||%s|%s|%s%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % (
                 rec.move_id.date.strftime("%Y%m") or '',  # Periodo del Asiento -> 1
                 rec.move_id.name.replace("/", "") or '',  # Correlativo de Factura -> 2
-                '--' or '',  # Correlativo de todos los asientos no solo facturas -> 3
+                correlativo or '',  # Correlativo de todos los asientos no solo facturas -> 3
                 rec.date_invoice.strftime("%d/%m/%Y") or '',  # Fecha de la Factura -> 4
                 rec.date_due.strftime("%d/%m/%Y") or '',  # Fecha de Vencimiento -> 5
                 rec.document_type_id.number or '',  # N° del Tipo de Documento -> 6
