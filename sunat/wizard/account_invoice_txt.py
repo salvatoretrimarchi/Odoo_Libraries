@@ -15,30 +15,6 @@ class AccountInvoiceConfirm(models.TransientModel):
     txt_binary = fields.Binary('file', readonly=True)
     txt_content = fields.Text()
 
-    # @api.model
-    # def default_get(self, fields):
-    #     rec = {}
-    #     inv_ids = self._context.get('active_ids')
-    #     invoice_ids = self.env['account.invoice'].browse(inv_ids)
-    #     content = ""
-    #     for inv in invoice_ids:
-    #         content = content + inv.partner_id.name + ","
-    #     content = content[0:len(content) - 1]
-    #     _logger.info(content)
-    #     rec.update({
-    #         'txt_filename': 'demo.txt',
-    #         # 'txt_content': content,
-    #         'txt_binary': base64.encodestring(content.encode('ISO-8859-1'))
-    #     })
-    #     _logger.info(rec)
-    #     return rec
-
-    def _generate_txt(self):
-        for rec in self:
-            _logger.info("txt_generando")
-            content = "%s" % (rec.txt_content)
-            rec.txt_binary = base64.encodestring(content.encode('ISO-8859-1'))
-
     @api.multi
     def generate_file(self):
         inv_ids = self._context.get('active_ids')
@@ -49,7 +25,7 @@ class AccountInvoiceConfirm(models.TransientModel):
         self.write({
             'state': 'get',
             'txt_binary': base64.encodestring(content.encode('ISO-8859-1')),
-            'txt_filename': "demo.txt"
+            'txt_filename': "compras.txt"
         })
         return {
             'type': 'ir.actions.act_window',
@@ -60,8 +36,3 @@ class AccountInvoiceConfirm(models.TransientModel):
             'res_id': self.id,
             'target': 'new'
         }
-
-
-@api.multi
-def close(self):
-    return {'type': 'ir.actions.act_window_close'}
