@@ -150,17 +150,22 @@ class account_invoice(models.Model):
     def _generate_txt_content(self):
         content = '-'
         for rec in self:
+            # Obtener el correlativo General de la Factura en el Mes
             correlativo = ""
-            _logger.info(rec.date_invoice.strftime("%m%Y") + " like " + str(rec.month_year_inv))
             dominio = [('month_year_inv', 'like', rec.date_invoice.strftime("%m%Y"))]
             facturas = self.env['account.invoice'].search(dominio, order="id asc")
             contador = 0
             for inv in facturas:
                 contador = contador + 1
-                _logger.info(str(inv.id) + " - " + str(inv.number) + " - " + inv.date_invoice.strftime(
-                    "%d/%m/%Y") + " - " + inv.month_year_inv)
                 if inv.number == rec.number:
                     correlativo = "%s" % (contador)
+
+            #Obtener el impuesto otros
+            impuesto_otros = ""
+            for line in rec.invoice_line_ids:
+                for imp in line.invoice_line_tax_ids:
+                    if imp.name == "otros":
+                        impuesto_otros = rec.amount_tax
 
             content = "%s00|%s|%s|%s|%s|%s|%s|%s|%s||%s|%s|%s|%s|%s|%s|%s|%s|%s|%s||%s|%s|%s%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % (
                 rec.move_id.date.strftime("%Y%m") or '',  # Periodo del Asiento -> 1
@@ -184,7 +189,7 @@ class account_invoice(models.Model):
                 rec.amount_tax or '',  # Impuesto -> 19
                 rec.residual or '',  # Total Adeudado -> 20
                 # Dejar en blando -> 21
-                '--' or '',  # Otros de las Lineas -> 22
+                impuesto_otros or '',  # Otros de las Lineas -> 22
                 rec.residual or '',  # Total Adeudado -> 23
                 '' or '',  # Tipo de moneda
                 rec.currency_id.name or '',  # Tipo de moneda
