@@ -65,6 +65,18 @@ class currency_type(models.Model):
         for rec in self:
             rec.name = "%s %s" % (rec.number or '', rec.description or '')
 
+class customs_code(models.Model):
+    _name = 'sunat.customs_code'
+    _description = "Codigos de Aduana"
+
+    name = fields.Text(compute="_customs_code_full")
+    number = fields.Char(string="Numero", size=3, translate=True,index=True)
+    description = fields.Text(string="Descripción", translate=True)
+
+    def _customs_code_full(self):
+        for rec in self:
+            rec.name = "%s %s" % (rec.number or '', rec.description or '')
+
 class account_invoice(models.Model):
     _inherit = "account.invoice"
 

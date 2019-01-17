@@ -7,6 +7,7 @@
     <menuitem id="sunat_document_type_menu" name="Tipo Documento" sequence="1" parent="sunat_menu_root" action="action_sunat_document_type" />
     <menuitem id="sunat_document_type_identity_menu" name="Tipo Documento de Identidad" sequence="1" parent="sunat_menu_root" action="action_sunat_document_type_identity" />
     <menuitem id="sunat_currency_type_menu" name="Tipos de Monedas" sequence="1" parent="sunat_menu_root" action="action_sunat_currency_type" />
+    <menuitem id="sunat_customs_code_menu" name="Codigos de la Aduana" sequence="1" parent="sunat_menu_root" action="action_sunat_customs_code" />
 
     <!-- <report
             id="account_invoices_prueba"

@@ -29,14 +29,16 @@
         'views/detraccion.xml',
         'views/document_type.xml',
         'views/currency_type.xml',
+        'views/customs_code.xml',
         'views/document_type_identity.xml',
         'views/views.xml',
         'views/templates.xml',
         'views/menu.xml',
         'data/data_detracciones.xml',
         'data/currency_type.xml',
-        'data/sunat.document_type.csv',
-        'data/sunat.document_type_identity.csv',
+        'data/customs_code.xml',
+        'data/document_type.xml',
+        'data/document_type_identity.xml',
     ],
     # only loaded in demonstration mode
     'demo': [
