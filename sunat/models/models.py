@@ -168,7 +168,7 @@ class account_invoice(models.Model):
                         impuesto_otros = rec.amount_tax
 
             content = "%s00|%s|M%s|%s|%s|%s|%s|%s|%s||%s|%s|%s|%s|%s|%s|%s|%s|%s|%s||%s|%s|%s|%.2f|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % (
-                rec.move_id.date.strftime("%Y%m") or '',  # Periodo del Asiento -> 1
+                rec.move_id.date.strftime("%Y/%m") or '',  # Periodo del Asiento -> 1
                 rec.move_id.name.replace("/", "") or '',  # Correlativo de Factura -> 2
                 correlativo or '',  # Correlativo de todos los asientos no solo facturas -> 3
                 rec.date_invoice.strftime("%d/%m/%Y") or '',  # Fecha de la Factura -> 4
