@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
 import base64
@@ -139,16 +139,17 @@ class account_invoice(models.Model):
     num_dua = fields.Char(string="Número DUA")
 
     # Para filtrar
-    month_year_inv = fields.Char(compute="_get_month_invoice", store=True,copy=True)
+    month_year_inv = fields.Char(compute="_get_month_invoice", store=True,copy=False)
 
     @api.depends('date_invoice')
     @api.multi
     def _get_month_invoice(self):
         for rec in self:
-            rec.month_year_inv = rec.date_invoice.strftime("%m%Y")
+            if rec.date_invoice != False:
+                rec.month_year_inv = rec.date_invoice.strftime("%m%Y")
 
     def _generate_txt_bill(self):
-        content = '-'
+        content = ''
         for rec in self:
             # Obtener el correlativo General de la Factura en el Mes
             correlativo = ""
