@@ -101,8 +101,6 @@ class account_invoice(models.Model):
     # Value of the Detraction
     detraccion = fields.Monetary(
         string="Detraction Value", compute="_calcular_detrac", store=True)
-    # Document Type
-    document_type_id = fields.Many2one('sunat.document_type', 'Document Type')
     # Apply Retention
     apply_retention = fields.Boolean(string="Apply Retention")
     # Hide or not Apply Retention
@@ -116,11 +114,13 @@ class account_invoice(models.Model):
         string="Total a Pagar2", compute="_total_pagar_factura")
 
     # Campos necesarios para el TXT
+    document_type_identity_id = fields.Many2one('sunat.document_type_identity', 'Tipo de Documento de Identidad')
     operation_type = fields.Selection(string="Tipo de Operación", selection=[
         ('1.-Exportación', '1.-Exportación')])
     num_dua = fields.Char(string="N° DUA")
     year_emission_dua = fields.Char(string="Año de emisión de la DUA")
-    document_type_identity_id = fields.Many2one('sunat.document_type_identity', 'Tipo de Documento de Identidad')
+    # Document Type
+    document_type_id = fields.Many2one('sunat.document_type', 'Document Type')
     document_num = fields.Integer(string="Numero de Documento")
     currency_type_id = fields.Many2one('sunat.currency_type', 'Tipo de Moneda')
 
@@ -233,12 +233,14 @@ class account_invoice(models.Model):
                 if inv.number == rec.number:
                     correlativo = "%s" % (contador)
 
-            content = "%s|%s|%s|%s|" % (
+            content = "%s|%s|%s|%s|%s|%s|%s" % (
                 rec.move_id.date.strftime("%Y%m") or '',  # Periodo del Asiento -> 1
                 rec.move_id.name.replace("/", "") or '',  # Correlativo de Factura -> 2
                 str(correlativo).zfill(4) or '',  # Correlativo de todos los asientos no solo facturas -> 3
                 rec.date_invoice.strftime("%d/%m/%Y") or '',  # Fecha de la Factura -> 4
                 rec.date_due.strftime("%d/%m/%Y") or '',  # Fecha de Vencimiento -> 5
+                rec.document_type_id.number or '',  # N° del Tipo de Documento -> 6
+                rec.number[len(rec.number) - 9:len(rec.number)-5] or '',  # Numero de Documento -> 7
             )
             return content
 
