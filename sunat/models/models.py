@@ -137,6 +137,13 @@ class account_invoice(models.Model):
         string="Numero del documento que modifica")
     code_dua = fields.Many2one('sunat.customs_code', 'Código DUA')
     num_dua = fields.Char(string="Número DUA")
+    #Invoice
+    series_document_modifies = fields.Char(string="Serie del documento que modifica")
+    document_modify = fields.Boolean(string="Modifica Documento")
+
+    #Factura de Cliente - Invoice
+    export_invoice = fields.Boolean(string="Fac.- Exp.")
+    exchange_rate = fields.Char(string="Tipo de Cambio")
 
     # Para filtrar
     month_year_inv = fields.Char(compute="_get_month_invoice", store=True,copy=False)
@@ -171,7 +178,7 @@ class account_invoice(models.Model):
             content = "%s00|%s|M%s|%s|%s|%s|%s|%s|%s||%s|%s|%s|%s|%s|%s|%s|%s|%s|%s||%s|%s|%s|%.2f|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % (
                 rec.move_id.date.strftime("%Y/%m") or '',  # Periodo del Asiento -> 1
                 rec.move_id.name.replace("/", "") or '',  # Correlativo de Factura -> 2
-                correlativo or '',  # Correlativo de todos los asientos no solo facturas -> 3
+                str(correlativo).zfill(4) or '',  # Correlativo de todos los asientos no solo facturas -> 3
                 rec.date_invoice.strftime("%d/%m/%Y") or '',  # Fecha de la Factura -> 4
                 rec.date_due.strftime("%d/%m/%Y") or '',  # Fecha de Vencimiento -> 5
                 rec.document_type_id.number or '',  # N° del Tipo de Documento -> 6
@@ -215,9 +222,23 @@ class account_invoice(models.Model):
     def _generate_txt_invoice(self):
         content = '-'
         for rec in self:
-            content = "%s|%s|" % (
+            
+            # Obtener el correlativo General de la Factura en el Mes
+            correlativo = ""
+            dominio = [('month_year_inv', 'like', rec.date_invoice.strftime("%m%Y"))]
+            facturas = self.env['account.invoice'].search(dominio, order="id asc")
+            contador = 0
+            for inv in facturas:
+                contador = contador + 1
+                if inv.number == rec.number:
+                    correlativo = "%s" % (contador)
+
+            content = "%s|%s|%s|%s|" % (
                 rec.move_id.date.strftime("%Y%m") or '',  # Periodo del Asiento -> 1
                 rec.move_id.name.replace("/", "") or '',  # Correlativo de Factura -> 2
+                str(correlativo).zfill(4) or '',  # Correlativo de todos los asientos no solo facturas -> 3
+                rec.date_invoice.strftime("%d/%m/%Y") or '',  # Fecha de la Factura -> 4
+                rec.date_due.strftime("%d/%m/%Y") or '',  # Fecha de Vencimiento -> 5
             )
             return content
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Sunat",
+    'name': "Sunat Peru",
 
     'summary': """
         Los procesos que pide sunat el la contabilidad""",
@@ -18,7 +18,7 @@
     'sequence':0,
     'category': 'Generic Modules/Base',
     'application': True,
-    'version': '0.1',
+    'version': '1.2',
 
     # any module necessary for this one to work correctly
     'depends': ['base','account'],
