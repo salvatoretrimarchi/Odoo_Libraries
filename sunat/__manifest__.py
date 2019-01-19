@@ -37,7 +37,6 @@
         'views/views.xml',
         'views/templates.xml',
         'views/menu.xml',
-        'wizard/account_invoice_txt_view.xml',
         'wizard/account_bill_txt_view.xml',
         'data/data_detracciones.xml',
         'data/currency_type.xml',

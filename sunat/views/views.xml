@@ -12,12 +12,23 @@
         </field>
     </record>
 
-    <!-- Formulario - Detraccion Factura Proveedor -->
+    <!-- Formulario - Factura Proveedor -->
     <record id="detraccion_form_view_factura" model="ir.ui.view">
         <field name="name">detraccion.form.factura</field>
         <field name="model">account.invoice</field>
         <field name="inherit_id" ref="account.invoice_supplier_form"/>
         <field name="arch" type="xml">
+            <field name="date_invoice" position="before">
+                <field name="document_modify"/>
+                <field name="date_document"/>
+            </field>
+            <field name="date_invoice" position="replace">
+                <field string="Fecha Contable" name="date_invoice" options="{'datepicker': {'warn_future': true}}"/>
+            </field>
+            <field name="move_name" position="after">
+                <field name="exchange_rate"/>
+                <field name="currency_id"/>
+            </field>
             <field name="partner_id" position="after">
                 <field string="Document Type" name="document_type_id" attrs="{'readonly':[['state','not in',['draft']]]}"/>
                 <field name="hide_apply_retention" invisible="1"/>
@@ -39,23 +50,28 @@
             <field name="partner_id" position="before">
                 <field name="operation_type"/>
             </field>
-            <xpath expr="sheet//group" position="after">
-                <group>
+            <xpath expr="//notebook/page[last()]" position="after">
+                <page string="Documento que Modifica">
                     <group>
-                        <h2>Detracciones</h2>
-                        <field name="date_detraction"/>
-                        <field name="num_detraction"/>
-                        <field name="proof_mark"/>
-                        <field name="classifier_good"/>
-                    </group>
-                    <group>
-                        <h2>Documento que Modifica</h2>
                         <field name="type_document_modifies_id"/>
                         <field name="num_document_modifies"/>
                         <field name="code_dua"/>
                         <field name="num_dua"/>
                     </group>
-                </group>
+                </page>
+                <page string="Detracciones">
+                    <group>
+                        <field name="date_detraction"/>
+                        <field name="num_detraction"/>
+                        <field name="proof_mark"/>
+                        <field name="classifier_good"/>
+                    </group>
+                </page>
+                <page string="Honorarios">
+                    <group>
+                        <field name="fourth_suspension"/>
+                    </group>
+                </page>
             </xpath>
         </field>
     </record>
@@ -74,6 +90,7 @@
         </field>
     </record>
 
+    <!-- Formulario - Factura Cliente -->
     <record id="_form_view_factura" model="ir.ui.view">
         <field name="name">sunat.form.invoice</field>
         <field name="model">account.invoice</field>

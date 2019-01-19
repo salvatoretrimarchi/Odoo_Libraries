@@ -128,6 +128,7 @@ class account_invoice(models.Model):
         string="Total a Pagar2", compute="_total_pagar_factura")
 
     # Campos necesarios para el TXT
+    fourth_suspension = fields.Boolean(string="Suspencion de Cuarta")
     document_type_identity_id = fields.Many2one(
         'sunat.document_type_identity', 'Tipo de Documento de Identidad')
     operation_type = fields.Selection(string="Tipo de Operación", selection=[
@@ -143,21 +144,16 @@ class account_invoice(models.Model):
     date_detraction = fields.Date(string="Fecha de detracción")
     num_detraction = fields.Char(string="Número de detración")
     proof_mark = fields.Char(string="Marca del comprobante")
-    classifier_good = fields.Many2one(
-        'sunat.classification_goods', 'Clasificación del Bien')
+    classifier_good = fields.Many2one('sunat.classification_goods', 'Clasificación del Bien')
 
     # Documento que Modifica
-    date_document_modifies = fields.Date(
-        string="Fecha del documento que modifica")
-    type_document_modifies_id = fields.Many2one(
-        'sunat.document_type', 'Tipo de Documento que Modifica')
-    num_document_modifies = fields.Char(
-        string="Numero del documento que modifica")
+    date_document_modifies = fields.Date(string="Fecha del documento que modifica")
+    type_document_modifies_id = fields.Many2one('sunat.document_type', 'Tipo de Documento que Modifica')
+    num_document_modifies = fields.Char(string="Numero del documento que modifica")
     code_dua = fields.Many2one('sunat.customs_code', 'Código DUA')
     num_dua = fields.Char(string="Número DUA")
     # Invoice
-    series_document_modifies = fields.Char(
-        string="Serie del documento que modifica")
+    series_document_modifies = fields.Char(string="Serie del documento que modifica")
     document_modify = fields.Boolean(string="Modifica Documento")
 
     # Factura de Cliente - Invoice
