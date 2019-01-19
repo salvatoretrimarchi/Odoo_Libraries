@@ -35,7 +35,7 @@
         <act_window id="action_account_bill_txt"
                     multi="True"
                     key2="client_action_multi"
-                    name="Generate Bill TXT"
+                    name="Generate TXT"
                     res_model="account.bill.txt"
                     src_model="account.invoice"
                     view_mode="form,tree"
