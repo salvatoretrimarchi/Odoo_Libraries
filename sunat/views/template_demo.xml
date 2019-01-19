@@ -1,197 +1,181 @@
 <?xml version="1.0"?>
-<form string="Invoice" class="o_invoice_form">
-                <header>
-                    <button name="action_invoice_sent" string="Send &amp; Print" type="object" attrs="{'invisible':['|',('sent','=',True), ('state', 'not in', ('open','in_payment','paid'))]}" class="oe_highlight" groups="base.group_user"/>
-                    <button name="action_invoice_sent" string="Send &amp; Print" type="object" attrs="{'invisible':['|',('sent','=',False), ('state', 'not in', ('open','in_payment','paid'))]}" groups="base.group_user"/>
-                    <button name="148" id="account_invoice_payment_btn" type="action" attrs="{'invisible': [('state', '!=', 'open')]}" string="Register Payment" groups="account.group_account_invoice" class="oe_highlight"/>
-                    <button name="action_invoice_open" type="object" states="draft" string="Validate" class="oe_highlight o_invoice_validate" groups="account.group_account_invoice"/>
-                    <button name="202" type="action" string="Add Credit Note" groups="account.group_account_invoice" attrs="{'invisible': ['|',('type', '=', 'out_refund'), ('state', 'not in', ('open','in_payment','paid'))]}"/>
-                    <button name="preview_invoice" type="object" string="Preview"/>
-                    <button name="action_invoice_draft" states="cancel" string="Reset to Draft" type="object" groups="account.group_account_invoice"/>
-                    <field name="state" widget="statusbar" nolabel="1" statusbar_visible="draft,open,paid"/>
-                </header>
-                <div groups="account.group_account_invoice" class="alert alert-info" role="alert" style="margin-bottom:0px;" attrs="{'invisible': [('has_outstanding','=',False)]}">
-                    You have <bold><a class="alert-link" href="#outstanding" role="button">outstanding payments</a></bold> for this customer. You can allocate them to mark this invoice as paid.
-                </div>
-                <field name="has_outstanding" invisible="1"/>
-                <sheet string="Invoice">
+<form string="Partners">
+                <sheet>
                     <div class="oe_button_box" name="button_box">
+                        <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
+                            <field name="active" widget="boolean_button" options="{&quot;terminology&quot;: &quot;archive&quot;}"/>
+                        </button>
                     </div>
-                    <span class="o_form_label" attrs="{'invisible': ['|',('state','=','draft'), ('type','!=','out_refund')]}">Credit Note</span>
-                    <h1 class="mt0">
-                        <div attrs="{'invisible': [('sequence_number_next_prefix','!=',False)]}">
-                            <label for="number" string="Draft Invoice" attrs="{'invisible': ['|',('state','not in',('draft',)), ('type','!=','out_invoice')]}"/>
-                            <label for="number" string="Draft Credit Note" attrs="{'invisible': ['|',('state','not in',('draft',)), ('type','!=','out_refund')]}"/>
-                            <field name="number" readonly="1" class="oe_inline" attrs="{'invisible': [('state','in',('draft',))]}"/>
+                    <field name="image" widget="image" class="oe_avatar" options="{&quot;preview_image&quot;: &quot;image_medium&quot;, &quot;size&quot;: [90, 90]}"/>
+                    <div class="oe_title">
+                        <field name="is_company" invisible="1"/>
+                        <field name="commercial_partner_id" invisible="1"/>
+                        <field name="company_type" widget="radio" class="oe_edit_only" options="{'horizontal': true}"/>
+                        <h1>
+                            <field name="name" default_focus="1" placeholder="Name" attrs="{'required' : [('type', '=', 'contact')]}"/>
+                        </h1>
+                        <div class="o_row">
+                            <field name="parent_id" widget="res_partner_many2one" placeholder="Company" domain="[('is_company', '=', True)]" context="{'default_is_company': True, 'default_supplier': supplier, 'default_customer': customer, 'show_vat': True}" attrs="{'invisible': ['|', '&amp;', ('is_company','=', True),('parent_id', '=', False),('company_name', '!=', False),('company_name', '!=', '')]}"/>
+                                <field name="company_name" attrs="{'invisible': ['|', '|', ('company_name', '=', False), ('company_name', '=', ''), ('is_company', '=', True)]}"/>
+                                <button name="create_company" type="object" class="oe_edit_only btn-link" attrs="{'invisible': ['|', '|', ('is_company','=', True), ('company_name', '=', ''), ('company_name', '=', False)]}">
+                                       <span class="fa fa-plus-square"/>
+                                       Create company
+                                </button>
                         </div>
-                        <div attrs="{'invisible': [('sequence_number_next_prefix','=',False)]}">
-                            <label for="sequence_number_next_prefix" string="Invoice Number:"/><br/>
-                            <field name="sequence_number_next_prefix" class="oe_inline"/>
-                            <field name="sequence_number_next" class="oe_inline"/>
-                        </div>
-                    </h1>
-                    <field name="type" invisible="1"/>
+                    </div>
+
                     <group>
                         <group>
-                            <field string="Customer" name="partner_id" widget="res_partner_many2one" context="{'search_default_customer':1, 'show_address': 1, 'default_is_company': True, 'show_vat': True}" options="{&quot;always_reload&quot;: True, &quot;no_quick_create&quot;: True}" domain="[('customer', '=', True)]" required="1"/>
-                            <field name="payment_term_id"/>
-                            <field name="cash_rounding_id" groups="account.group_cash_rounding"/>
-                        </group>
-                        <group>
-                            <field name="date_invoice" options="{'datepicker': {'warn_future': true}}"/>
-                            <field name="date_due" attrs="{'readonly': ['|',('payment_term_id','!=',False), ('state', 'in', ['open', 'in_payment', 'paid'])]}" force_save="1"/>
-                            <field name="move_name" invisible="1"/>
-                            <field name="user_id" groups="base.group_user"/>
-                            <label for="currency_id" groups="base.group_multi_currency"/>
-                            <div groups="base.group_multi_currency">
-                                <field name="currency_id" options="{'no_create': True, 'no_open': True}" class="oe_inline"/>
-                                <field name="company_currency_id" invisible="1"/>
+                            <field name="type" attrs="{'invisible': [('parent_id','=', False)]}" groups="base.group_no_one"/>
+                            <label for="street" string="Address"/>
+                            <div class="o_address_format">
+                                <div attrs="{'invisible': ['|', ('parent_id', '=', False), ('type', '!=', 'contact')]}" class="oe_edit_only"><b>Company Address:</b></div>
+                                <field name="street" placeholder="Street..." class="o_address_street" attrs="{'readonly': [('type', '=', 'contact'),('parent_id', '!=', False)]}"/>
+                                <field name="street2" placeholder="Street 2..." class="o_address_street" attrs="{'readonly': [('type', '=', 'contact'),('parent_id', '!=', False)]}"/>
+                                <field name="city" placeholder="City" class="o_address_city" attrs="{'readonly': [('type', '=', 'contact'),('parent_id', '!=', False)]}"/>
+                                <field name="state_id" class="o_address_state" placeholder="State" options="{&quot;no_open&quot;: True}" attrs="{'readonly': [('type', '=', 'contact'),('parent_id', '!=', False)]}" context="{'country_id': country_id, 'zip': zip}"/>
+                                <field name="zip" placeholder="ZIP" class="o_address_zip" attrs="{'readonly': [('type', '=', 'contact'),('parent_id', '!=', False)]}"/>
+                                <field name="country_id" placeholder="Country" class="o_address_country" options="{&quot;no_open&quot;: True, &quot;no_create&quot;: True}" attrs="{'readonly': [('type', '=', 'contact'),('parent_id', '!=', False)]}"/>
                             </div>
+                            <field name="vat" placeholder="e.g. BE0477472701" attrs="{'readonly': [('parent_id','!=',False)]}"/>
+                           </group>
+                        <group>
+                            <field name="function" placeholder="e.g. Sales Director" attrs="{'invisible': [('is_company','=', True)]}"/>
+                            <field name="phone" widget="phone"/>
+                            <field name="mobile" widget="phone"/>
+                            <field name="user_ids" invisible="1"/>
+                            <field name="email" widget="email" context="{'gravatar_image': True}" attrs="{'required': [('user_ids','!=', [])]}"/>
+                            <field name="website" widget="url" placeholder="e.g. www.odoo.com"/>
+                            <field name="title" options="{&quot;no_open&quot;: True}" attrs="{'invisible': [('is_company', '=', True)]}"/>
+                            <field name="lang"/>
+                            <field name="category_id" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}" placeholder="Tags..."/>
                         </group>
                     </group>
-                    <field name="sent" invisible="1"/>
-                    <notebook colspan="4">
-                        <page string="Invoice Lines">
-                            <field name="invoice_line_ids" nolabel="1" widget="section_and_note_one2many" mode="tree,kanban" context="{'type': type, 'journal_id': journal_id, 'default_invoice_id': id}">
-                                <tree string="Invoice Lines" editable="bottom">
-                                    <control>
-                                        <create string="Add a line"/>
-                                        <create string="Add a section" context="{'default_display_type': 'line_section'}"/>
-                                        <create string="Add a note" context="{'default_display_type': 'line_note'}"/>
-                                    </control>
 
-                                    <field name="sequence" widget="handle"/>
-                                    <field name="product_id" domain="[('sale_ok','=',True)]"/>
-                                    <field name="origin" invisible="1"/>
-                                    <field name="is_rounding_line" invisible="1"/>
-                                    <field name="name" widget="section_and_note_text"/>
-                                    <field name="display_type" invisible="1"/>
-                                    <field name="company_id" invisible="1"/>
-                                    <field name="account_id" groups="account.group_account_user" domain="[('company_id', '=', parent.company_id), ('internal_type', '=', 'other'), ('deprecated', '=', False)]" attrs="{'required': [('display_type', '=', False)]}"/>
-                                    <field name="account_analytic_id" groups="analytic.group_analytic_accounting" domain="[('company_id', '=', parent.company_id)]" context="{'default_partner_id': parent.partner_id}"/>
-                                    <field name="analytic_tag_ids" groups="analytic.group_analytic_tags" widget="many2many_tags" options="{'color_field': 'color'}"/>
-                                    <field name="quantity"/>
-                                    <field name="uom_id" groups="uom.group_uom"/>
-                                    <field name="price_unit" string="Price"/>
-                                    <field name="discount" groups="base.group_no_one" string="Disc (%)"/>
-                                    <field name="invoice_line_tax_ids" widget="many2many_tags" options="{'no_create': True}" context="{'type':parent.type, 'tree_view_ref': 'account.account_tax_view_tree', 'search_view_ref': 'account.account_tax_view_search'}" domain="[('type_tax_use','=','sale'),('company_id', '=', parent.company_id)]"/>
-                                    <field name="price_subtotal" string="Subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
-                                    <field name="price_total" string="Total" groups="account.group_show_line_subtotals_tax_included"/>
-                                    <field name="currency_id" invisible="1"/>
-                                </tree>
-                                <kanban class="o_kanban_mobile">
+                    <notebook colspan="4">
+                        <page string="Contacts &amp; Addresses" autofocus="autofocus">
+                            <field name="child_ids" mode="kanban" context="{'default_parent_id': active_id, 'default_street': street, 'default_street2': street2, 'default_city': city, 'default_state_id': state_id, 'default_zip': zip, 'default_country_id': country_id, 'default_supplier': supplier, 'default_customer': customer, 'default_lang': lang, 'default_user_id': user_id}">
+                                <kanban>
+                                    <field name="id"/>
+                                    <field name="color"/>
                                     <field name="name"/>
-                                    <field name="product_id"/>
-                                    <field name="price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
-                                    <field name="price_total" groups="account.group_show_line_subtotals_tax_included"/>
-                                    <field name="quantity"/>
-                                    <field name="uom_id" groups="uom.group_uom"/>
-                                    <field name="price_unit"/>
-                                    <field name="display_type"/>
+                                    <field name="title"/>
+                                    <field name="type"/>
+                                    <field name="email"/>
+                                    <field name="parent_id"/>
+                                    <field name="is_company"/>
+                                    <field name="function"/>
+                                    <field name="phone"/>
+                                    <field name="street"/>
+                                    <field name="street2"/>
+                                    <field name="zip"/>
+                                    <field name="city"/>
+                                    <field name="country_id"/>
+                                    <field name="mobile"/>
+                                    <field name="state_id"/>
+                                    <field name="image_small"/>
+                                    <field name="lang"/>
+                                    <!-- fields in form x2many view to diminish requests -->
+                                    <field name="comment"/>
+                                    <field name="customer"/>
+                                    <field name="display_name"/>
+                                    <field name="supplier"/>
                                     <templates>
                                         <t t-name="kanban-box">
-                                            <div t-attf-class="oe_kanban_card oe_kanban_global_click {{ record.display_type.raw_value ? 'o_is_' + record.display_type.raw_value : '' }}">
-                                                <t t-if="!record.display_type.raw_value">
-                                                    <div class="row">
-                                                        <div class="col-8">
-                                                            <strong>
-                                                                <span>
-                                                                    <t t-esc="record.product_id.value"/>
-                                                                </span>
-                                                            </strong>
+                                            <t t-set="color" t-value="kanban_color(record.color.raw_value)"/>
+                                            <div t-att-class="color + (record.title.raw_value == 1 ? ' oe_kanban_color_alert' : '') + ' oe_kanban_global_click'">
+                                                <div class="o_kanban_image">
+                                                    <img alt="" t-if="record.image_small.raw_value" t-att-src="kanban_image('res.partner', 'image_small', record.id.raw_value)"/>
+                                                    <t t-if="!record.image_small.raw_value">
+                                                        <img alt="Delivery" t-if="record.type.raw_value === 'delivery'" t-att-src="_s + &quot;/base/static/img/truck.png&quot;"/>
+                                                        <img alt="Invoice" t-if="record.type.raw_value === 'invoice'" t-att-src="_s + &quot;/base/static/img/money.png&quot;"/>
+                                                        <t t-if="record.type.raw_value !== 'invoice' &amp;&amp; record.type.raw_value !== 'delivery'">
+                                                            <img alt="Logo" t-if="record.is_company.raw_value === true" t-att-src="_s + &quot;/base/static/img/company_image.png&quot;"/>
+                                                            <img alt="Avatar" t-if="record.is_company.raw_value === false" t-att-src="_s + &quot;/base/static/img/avatar.png&quot;"/>
+                                                        </t>
+                                                    </t>
+                                                </div>
+                                                <div class="oe_kanban_details">
+                                                    <field name="name"/>
+                                                    <div t-if="record.function.raw_value"><field name="function"/></div>
+                                                    <div t-if="record.email.raw_value"><field name="email" widget="email"/></div>
+                                                    <div t-if="record.type.raw_value != 'contact'">
+                                                        <div>
+                                                            <field name="zip"/>
+                                                            <field name="city"/>
                                                         </div>
-                                                        <div class="col-4">
-                                                            <strong>
-                                                                <span class="float-right text-right">
-                                                                    <t t-esc="record.price_subtotal.value" groups="account.group_show_line_subtotals_tax_excluded"/>
-                                                                    <t t-esc="record.price_total.value" groups="account.group_show_line_subtotals_tax_included"/>
-                                                                </span>
-                                                            </strong>
-                                                        </div>
+                                                        <field t-if="record.state_id.raw_value" name="state_id"/>
+                                                        <field name="country_id"/>
                                                     </div>
-                                                    <div class="row">
-                                                        <div class="col-12 text-muted">
-                                                            <span>
-                                                                Quantity:
-                                                                <t t-esc="record.quantity.value"/>
-                                                                <t t-esc="record.uom_id.value"/>
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-12 text-muted">
-                                                            <span>
-                                                                Unit Price:
-                                                                <t t-esc="record.price_unit.value"/>
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </t>
-                                                <t t-if="record.display_type.raw_value === 'line_section' || record.display_type.raw_value === 'line_note'">
-                                                    <div class="row">
-                                                        <div class="col-12">
-                                                            <span>
-                                                                <t t-esc="record.name.value"/>
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </t>
+                                                    <div t-if="record.phone.raw_value">Phone: <field name="phone"/></div>
+                                                    <div t-if="record.mobile.raw_value">Mobile: <field name="mobile"/></div>
+                                                </div>
                                             </div>
                                         </t>
                                     </templates>
                                 </kanban>
+                                <form string="Contact / Address">
+                                    <sheet>
+                                        <!-- parent_id and type fields needed in attrs in base_address_city module which overwrites
+                                        _fields_view_get() of partner. It would be better to put those fields there but the web client
+                                        dosen't support when a field is displayed several times in the same view.-->
+                                        <field name="type" required="1" widget="radio" options="{'horizontal': true}"/>
+                                        <field name="parent_id" invisible="1"/>
+                                        <hr/>
+                                        <group>
+                                            <group attrs="{'invisible': [('type','=', 'contact')]}">
+                                                <label for="street" string="Address"/>
+                                                <div>
+                                                    <div class="o_address_format" name="div_address">
+                                                        <field name="street" placeholder="Street..." class="o_address_street"/>
+                                                        <field name="street2" placeholder="Street 2..." class="o_address_street"/>
+                                                        <field name="city" placeholder="City" class="o_address_city"/>
+                                                        <field name="state_id" class="o_address_state" placeholder="State" options="{&quot;no_open&quot;: True}" context="{'country_id': country_id, 'zip': zip}"/>
+                                                        <field name="zip" placeholder="ZIP" class="o_address_zip"/>
+                                                        <field name="country_id" placeholder="Country" class="o_address_country" options="{&quot;no_open&quot;: True, &quot;no_create&quot;: True}"/>
+                                                    </div>
+                                                </div>
+                                            </group>
+                                            <group>
+                                                <field name="name" string="Contact Name" attrs="{'required' : [('type', '=', 'contact')]}"/>
+                                                <field name="title" placeholder="e.g. Mr." attrs="{'invisible': [('type','!=', 'contact')]}"/>
+                                                <field name="function" placeholder="e.g. Sales Director" attrs="{'invisible': [('type','!=', 'contact')]}"/>
+                                                <field name="email"/>
+                                                <field name="phone" widget="phone"/>
+                                                <field name="mobile" widget="phone"/>
+                                                <field name="comment" placeholder="internal note..."/>
+                                            </group>
+                                        </group>
+                                        <field name="supplier" invisible="True"/>
+                                        <field name="customer" invisible="True"/>
+                                        <field name="lang" invisible="True"/>
+                                        <field name="image" invisible="True"/>
+                                        <field name="user_id" invisible="True"/>
+                                    </sheet>
+                                </form>
                             </field>
-                            <group class="oe_subtotal_footer oe_right">
-                                <field name="amount_untaxed"/>
-                                <field name="amount_tax"/>
-                                <field name="amount_total" class="oe_subtotal_footer_separator"/>
-                                <field name="payments_widget" colspan="2" nolabel="1" widget="payment"/>
-                                <field name="residual" class="oe_subtotal_footer_separator" attrs="{'invisible': [('state', '=', 'draft')]}"/>
-                                <field name="reconciled" invisible="1"/>
-                                <field name="outstanding_credits_debits_widget" colspan="2" nolabel="1" widget="payment" attrs="{'invisible': [('state', 'not in', 'open')]}"/>
-                            </group>
-                            <field name="comment" placeholder="Terms and conditions..."/>
                         </page>
-                        <page string="Other Info" name="other_info">
-                            <group>
-                                <group>
-                                    <field name="journal_id" groups="account.group_account_user" options="{'no_create': True}" attrs="{'readonly':[('move_name','!=',False)]}"/>
-                                    <field domain="[('company_id', '=', company_id),('internal_type','=', 'receivable'), ('deprecated', '=', False)]" name="account_id" groups="account.group_account_user"/>
-                                    <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
-                                    <field name="reference" attrs="{'readonly':[('state','!=','draft')]}"/>
-                                    <field name="name"/>
+                        <page name="internal_notes" string="Internal Notes">
+                            <field name="comment" placeholder="Internal note..."/>
+                        </page>
+                        <page name="sales_purchases" string="Sales &amp; Purchases">
+                            <group name="container_row_2">
+                                <group string="Sales" name="sale" priority="1">
+                                    <field name="customer"/>
+                                    <field name="user_id"/>
                                 </group>
-                                <group>
-                                    <field name="incoterm_id" options="{'no_create': True}"/>
-                                    <field name="fiscal_position_id" options="{'no_create': True}"/>
-                                    <field name="move_id" groups="account.group_account_user" attrs="{'invisible': [('move_id', '=', False)]}"/>
-                                    <field name="origin" groups="base.group_user" attrs="{'invisible': [('origin', '=', False)]}"/>
-                                    <field name="partner_bank_id" domain="[('partner_id.ref_company_ids', 'in', [company_id])]" context="{'default_partner_id':company_id}"/>
+                                <group string="Purchase" name="purchase" priority="2">
+                                    <field name="supplier"/>
+                                </group>
+                                <group string="Misc">
+                                    <field name="ref"/>
+                                    <field name="barcode"/>
+                                    <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                                    <field name="industry_id" attrs="{'invisible': [('is_company', '=', False)]}" options="{'no_create': True}"/>
                                 </group>
                             </group>
-                            <field name="tax_line_ids">
-                                <tree editable="bottom" string="Taxes" create="0">
-                                    <field name="name"/>
-                                    <!--Need invisible fields for on_change to create all necessary info -->
-                                    <field name="tax_id" invisible="1"/>
-                                    <field name="sequence" invisible="1"/>
-                                    <field name="manual" invisible="1"/>
-                                    <field name="account_id" groups="account.group_account_user"/>
-                                    <field name="amount" invisible="1"/>
-                                    <field name="account_analytic_id" domain="[('company_id', '=', parent.company_id)]" groups="analytic.group_analytic_accounting"/>
-                                    <field name="analytic_tag_ids" groups="analytic.group_analytic_tags" widget="many2many_tags" options="{'color_field': 'color'}"/>
-                                    <field name="amount_rounding" invisible="1"/>
-                                    <field name="amount_total"/>
-                                    <field name="currency_id" invisible="1" force_save="1"/>
-                                </tree>
-                            </field>
                         </page>
                     </notebook>
                 </sheet>
-                <div class="oe_chatter">
-                    <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
-                    <field name="activity_ids" widget="mail_activity"/>
-                    <field name="message_ids" widget="mail_thread"/>
-                </div>
                 </form>
             

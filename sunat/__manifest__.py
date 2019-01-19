@@ -19,9 +19,11 @@
     'category': 'Generic Modules/Base',
     'application': True,
     'version': '1.2',
+    'installable': True,
+    'auto_install': True,
 
     # any module necessary for this one to work correctly
-    'depends': ['base','account'],
+    'depends': ['base','account','sale'],
 
     # always loaded
     'data': [

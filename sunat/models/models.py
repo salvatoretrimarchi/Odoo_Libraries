@@ -22,12 +22,6 @@ class detracciones(models.Model):
             rec.detracmack = "{}%".format(detrac)
 
 
-class proveedor(models.Model):
-    _inherit = "res.partner"
-
-    detrac_id = fields.Many2one('sunat.detracciones', 'Detraccion')
-
-
 class document_type(models.Model):
     _name = 'sunat.document_type'
     _description = "Tipos de Documentos"
@@ -92,6 +86,19 @@ class classification_goods(models.Model):
         for rec in self:
             rec.name = "%s %s" % (rec.number or '', rec.description or '')
 
+class proveedor(models.Model):
+    _inherit = 'res.partner'
+
+    detrac_id = fields.Many2one('sunat.detracciones', 'Detraccion')
+    # document_type_identity_id = fields.Many2one(
+    #     'sunat.document_type_identity', 'Tipo de Documento de Identidad')
+    # document_num_identity = fields.Integer(
+    #     string="Numero de Documento de Identidad")
+    # person_type_sunat = fields.Selection(string="Tipo de Operación",
+    #                                      selection=[('01-Persona Natural', '01-Persona Natural'), (
+    #                                          '02-Persona Jurídica', '02-Persona Jurídica'),
+    #                                          ('03-Sujeto no Domiciliado', '03-Sujeto no Domiciliado')])
+
 
 class account_invoice(models.Model):
     _inherit = "account.invoice"
@@ -114,7 +121,8 @@ class account_invoice(models.Model):
         string="Total a Pagar2", compute="_total_pagar_factura")
 
     # Campos necesarios para el TXT
-    document_type_identity_id = fields.Many2one('sunat.document_type_identity', 'Tipo de Documento de Identidad')
+    document_type_identity_id = fields.Many2one(
+        'sunat.document_type_identity', 'Tipo de Documento de Identidad')
     operation_type = fields.Selection(string="Tipo de Operación", selection=[
         ('1.-Exportación', '1.-Exportación')])
     num_dua = fields.Char(string="N° DUA")
@@ -128,25 +136,30 @@ class account_invoice(models.Model):
     date_detraction = fields.Date(string="Fecha de detracción")
     num_detraction = fields.Char(string="Número de detración")
     proof_mark = fields.Char(string="Marca del comprobante")
-    classifier_good = fields.Many2one('sunat.classification_goods', 'Clasificación del Bien')
+    classifier_good = fields.Many2one(
+        'sunat.classification_goods', 'Clasificación del Bien')
 
     # Documento que Modifica
-    date_document_modifies = fields.Date(string="Fecha del documento que modifica")
-    type_document_modifies = fields.Many2one('sunat.document_type', 'Tipo de Documento que Modifica')
+    date_document_modifies = fields.Date(
+        string="Fecha del documento que modifica")
+    type_document_modifies = fields.Many2one(
+        'sunat.document_type', 'Tipo de Documento que Modifica')
     num_document_modifies = fields.Char(
         string="Numero del documento que modifica")
     code_dua = fields.Many2one('sunat.customs_code', 'Código DUA')
     num_dua = fields.Char(string="Número DUA")
-    #Invoice
-    series_document_modifies = fields.Char(string="Serie del documento que modifica")
+    # Invoice
+    series_document_modifies = fields.Char(
+        string="Serie del documento que modifica")
     document_modify = fields.Boolean(string="Modifica Documento")
 
-    #Factura de Cliente - Invoice
+    # Factura de Cliente - Invoice
     export_invoice = fields.Boolean(string="Fac.- Exp.")
     exchange_rate = fields.Char(string="Tipo de Cambio")
 
     # Para filtrar
-    month_year_inv = fields.Char(compute="_get_month_invoice", store=True,copy=False)
+    month_year_inv = fields.Char(
+        compute="_get_month_invoice", store=True, copy=False)
 
     @api.depends('date_invoice')
     @api.multi
@@ -160,8 +173,10 @@ class account_invoice(models.Model):
         for rec in self:
             # Obtener el correlativo General de la Factura en el Mes
             correlativo = ""
-            dominio = [('month_year_inv', 'like', rec.date_invoice.strftime("%m%Y"))]
-            facturas = self.env['account.invoice'].search(dominio, order="id asc")
+            dominio = [('month_year_inv', 'like',
+                        rec.date_invoice.strftime("%m%Y"))]
+            facturas = self.env['account.invoice'].search(
+                dominio, order="id asc")
             contador = 0
             for inv in facturas:
                 contador = contador + 1
@@ -176,17 +191,24 @@ class account_invoice(models.Model):
                         impuesto_otros = rec.amount_tax
 
             content = "%s00|%s|M%s|%s|%s|%s|%s|%s|%s||%s|%s|%s|%s|%s|%s|%s|%s|%s|%s||%s|%s|%s|%.2f|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % (
-                rec.move_id.date.strftime("%Y/%m") or '',  # Periodo del Asiento -> 1
-                rec.move_id.name.replace("/", "") or '',  # Correlativo de Factura -> 2
-                str(correlativo).zfill(4) or '',  # Correlativo de todos los asientos no solo facturas -> 3
-                rec.date_invoice.strftime("%d/%m/%Y") or '',  # Fecha de la Factura -> 4
-                rec.date_due.strftime("%d/%m/%Y") or '',  # Fecha de Vencimiento -> 5
+                # Periodo del Asiento -> 1
+                rec.move_id.date.strftime("%Y/%m") or '',
+                # Correlativo de Factura -> 2
+                rec.move_id.name.replace("/", "") or '',
+                # Correlativo de todos los asientos no solo facturas -> 3
+                str(correlativo).zfill(4) or '',
+                # Fecha de la Factura -> 4
+                rec.date_invoice.strftime("%d/%m/%Y") or '',
+                # Fecha de Vencimiento -> 5
+                rec.date_due.strftime("%d/%m/%Y") or '',
                 rec.document_type_id.number or '',  # N° del Tipo de Documento -> 6
                 rec.number or '',  # Numero de la Factura -> 7
                 rec.year_emission_dua or '',  # Año de emision del DUA -> 8
-                rec.number[len(rec.number) - 4:len(rec.number)] or '',  # Numero -> 9
+                rec.number[len(rec.number) - 4:len(rec.number)
+                ] or '',  # Numero -> 9
                 # Omitido -> 10
-                rec.document_type_identity_id.number or '',  # N° Tipo de Documento Identidad -> 11
+                # N° Tipo de Documento Identidad -> 11
+                rec.document_type_identity_id.number or '',
                 rec.document_num or '',  # N° de Documento de Identidad -> 12
                 rec.partner_id.name or '',  # Nombre del Proveedor -> 13
                 rec.amount_untaxed or '',  # Base imponible -> 14
@@ -202,7 +224,8 @@ class account_invoice(models.Model):
                 rec.currency_id.name or '',  # Tipo de moneda -> 24
                 rec.currency_id.rate or '',  # -> 25
                 rec.date_document_modifies or '',  # Fecha del documento que modifica -> 26
-                rec.type_document_modifies.number or '',  # Tipo del documento que modifica -> 27
+                # Tipo del documento que modifica -> 27
+                rec.type_document_modifies.number or '',
                 rec.num_document_modifies or '',  # Numero del documento que modifica -> 28
                 rec.code_dua.number or '',  # Codigo DUA -> 29
                 rec.num_dua or '',  # Numero DUA -> 30
@@ -222,25 +245,42 @@ class account_invoice(models.Model):
     def _generate_txt_invoice(self):
         content = '-'
         for rec in self:
-            
+
             # Obtener el correlativo General de la Factura en el Mes
             correlativo = ""
-            dominio = [('month_year_inv', 'like', rec.date_invoice.strftime("%m%Y"))]
-            facturas = self.env['account.invoice'].search(dominio, order="id asc")
+            dominio = [('month_year_inv', 'like',
+                        rec.date_invoice.strftime("%m%Y"))]
+            facturas = self.env['account.invoice'].search(
+                dominio, order="id asc")
             contador = 0
             for inv in facturas:
                 contador = contador + 1
                 if inv.number == rec.number:
                     correlativo = "%s" % (contador)
 
-            content = "%s|%s|%s|%s|%s|%s|%s" % (
-                rec.move_id.date.strftime("%Y%m") or '',  # Periodo del Asiento -> 1
-                rec.move_id.name.replace("/", "") or '',  # Correlativo de Factura -> 2
-                str(correlativo).zfill(4) or '',  # Correlativo de todos los asientos no solo facturas -> 3
-                rec.date_invoice.strftime("%d/%m/%Y") or '',  # Fecha de la Factura -> 4
-                rec.date_due.strftime("%d/%m/%Y") or '',  # Fecha de Vencimiento -> 5
+            # 13 ->
+
+            content = "%s|%s|%s|%s|%s|%s|%s|||" % (
+                # Periodo del Asiento -> 1
+                rec.move_id.date.strftime("%Y%m") or '',
+                # Correlativo de Factura -> 2
+                rec.move_id.name.replace("/", "") or '',
+                # Correlativo de todos los asientos no solo facturas -> 3
+                str(correlativo).zfill(4) or '',
+                # Fecha de la Factura -> 4
+                rec.date_invoice.strftime("%d/%m/%Y") or '',
+                # Fecha de Vencimiento -> 5
+                rec.date_due.strftime("%d/%m/%Y") or '',
                 rec.document_type_id.number or '',  # N° del Tipo de Documento -> 6
-                rec.number[len(rec.number) - 9:len(rec.number)-5] or '',  # Numero de Documento -> 7
+                rec.number[len(rec.number) - 9:len(rec.number) - \
+                                               5] or '',  # Numero de Documento -> 7
+                # Dejan en blanco -> 8
+                # Dejan en blanco -> 9
+                # Validar el 10
+                rec.number[len(rec.number) - 4:len(rec.number)
+                ] or '',  # Numero -> 11
+                rec.partner_id.name or '',  # Nombre del Proveedor -> 12
+
             )
             return content
 
