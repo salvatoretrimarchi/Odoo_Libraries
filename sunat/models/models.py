@@ -332,7 +332,7 @@ class account_invoice(models.Model):
                     if imp.name == "arroz pilado":
                         impuesto_22 = rec.amount_tax
 
-            content = "%s|%s|%s|%s|%s|%s|%s|||%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%.2f|%s|%s" % (
+            content = "%s|%s|%s|%s|%s|%s|%s|||%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%.2f|%s|%s|%s|%s||||%s|" % (
                 rec.move_id.date.strftime("%Y%m") or '',  # Periodo del Asiento -> 1
                 rec.move_id.name.replace("/", "") or '',  # Correlativo de Factura -> 2
                 str(correlativo).zfill(4) or '',  # Correlativo de todos los asientos no solo facturas -> 3
@@ -359,70 +359,73 @@ class account_invoice(models.Model):
                 rec.amount_total or '',  # Total -> 24
                 rec.currency_id.name or '',  # Tipo de moneda -> 25
                 rec.exchange_rate or '',  # Tipo de Cambio-> 26
-                rec.date_document_modifies or '', # Fecha del Documento Asociado -> 27
-                rec.type_document_modifies or '', # Tipo del Documento Asociado -> 28
-                rec.series_document_modifies or '', # Serie del Documento Asociado -> 29
-                rec.num_document_modifies or '', # Numero del Documento Asociado -> 30
+                rec.date_document_modifies or '',  # Fecha del Documento Asociado -> 27
+                rec.type_document_modifies or '',  # Tipo del Documento Asociado -> 28
+                rec.series_document_modifies or '',  # Serie del Documento Asociado -> 29
+                rec.num_document_modifies or '',  # Numero del Documento Asociado -> 30
+                # 3 campos en blanco
+                '' or ''
+                # 1 campo en blanco
             )
             return content
 
 
-# Method to hide Apply Retention
-@api.depends('document_type_id')
-@api.multi
-def _compute_hide_apply_retention(self):
-    for record in self:
-        if record.document_type_id.number == '02':
-            record.hide_apply_retention = False
-        else:
-            record.hide_apply_retention = True
+    # Method to hide Apply Retention
+    @api.depends('document_type_id')
+    @api.multi
+    def _compute_hide_apply_retention(self):
+        for record in self:
+            if record.document_type_id.number == '02':
+                record.hide_apply_retention = False
+            else:
+                record.hide_apply_retention = True
 
 
-@api.depends('detraccion', 'residual_signed', 'amount_total_signed')
-@api.multi
-def _detraction_is_paid(self):
-    for rec in self:
-        # rec.detraccion_paid = True
-        valor = rec.amount_total_signed - rec.residual_signed
-        if valor >= rec.detraccion:
-            rec.detraccion_paid = True
-        else:
-            if rec.state == "Paid":
+    @api.depends('detraccion', 'residual_signed', 'amount_total_signed')
+    @api.multi
+    def _detraction_is_paid(self):
+        for rec in self:
+            # rec.detraccion_paid = True
+            valor = rec.amount_total_signed - rec.residual_signed
+            if valor >= rec.detraccion:
                 rec.detraccion_paid = True
             else:
-                rec.detraccion_paid = False
+                if rec.state == "Paid":
+                    rec.detraccion_paid = True
+                else:
+                    rec.detraccion_paid = False
 
 
-# Load the retention of the selected provider
-@api.onchange('partner_id')
-def _onchange_proveedor(self):
-    # if len(self.detrac_id) <= 0 :
-    self.detrac_id = self.partner_id.detrac_id
+    # Load the retention of the selected provider
+    @api.onchange('partner_id')
+    def _onchange_proveedor(self):
+        # if len(self.detrac_id) <= 0 :
+        self.detrac_id = self.partner_id.detrac_id
 
 
-# Calculate the value of the Detraction
-@api.depends('amount_total', 'detrac_id')
-@api.multi
-def _calcular_detrac(self):
-    for record in self:
-        record.detraccion = record.amount_total * \
-                            (record.detrac_id.detrac / 100)
+    # Calculate the value of the Detraction
+    @api.depends('amount_total', 'detrac_id')
+    @api.multi
+    def _calcular_detrac(self):
+        for record in self:
+            record.detraccion = record.amount_total * \
+                                (record.detrac_id.detrac / 100)
 
 
-# # Trial Action
-# @api.multi
-# def action_prueba(self):
-#     for rec in self:
-#         rec.reference = 'FacturaDePrueba'
-#     return True
+    # # Trial Action
+    # @api.multi
+    # def action_prueba(self):
+    #     for rec in self:
+    #         rec.reference = 'FacturaDePrueba'
+    #     return True
 
-@api.depends('residual_signed', 'detraccion')
-@api.multi
-def _total_pagar_factura(self):
-    for record in self:
-        if record.detraccion_paid == True:
-            record.total_pagar = record.residual_signed - record.detraccion
-            if record.total_pagar < 0:
-                record.total_pagar = 0
-        else:
-            record.total_pagar = record.residual_signed
+    @api.depends('residual_signed', 'detraccion')
+    @api.multi
+    def _total_pagar_factura(self):
+        for record in self:
+            if record.detraccion_paid == True:
+                record.total_pagar = record.residual_signed - record.detraccion
+                if record.total_pagar < 0:
+                    record.total_pagar = 0
+            else:
+                record.total_pagar = record.residual_signed
