@@ -50,7 +50,7 @@
                     </group>
                     <group>
                         <h2>Documento que Modifica</h2>
-                        <field name="type_document_modifies"/>
+                        <field name="type_document_modifies_id"/>
                         <field name="num_document_modifies"/>
                         <field name="code_dua"/>
                         <field name="num_dua"/>
@@ -105,7 +105,7 @@
                 </page>
                 <page string="Documento que Modifica">
                     <group>
-                        <field name="type_document_modifies" string="Tipo de Documento"/>
+                        <field name="type_document_modifies_id" string="Tipo de Documento"/>
                         <field name="series_document_modifies" string="Serie del Documento"/>
                         <field name="num_document_modifies" string="Numero de Documento"/>
                         <field name="date_document_modifies" string="Fecha del Documento"/>

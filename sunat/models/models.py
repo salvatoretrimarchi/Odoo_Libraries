@@ -1,6 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
 import base64
 import logging
 
@@ -148,7 +149,7 @@ class account_invoice(models.Model):
     # Documento que Modifica
     date_document_modifies = fields.Date(
         string="Fecha del documento que modifica")
-    type_document_modifies = fields.Many2one(
+    type_document_modifies_id = fields.Many2one(
         'sunat.document_type', 'Tipo de Documento que Modifica')
     num_document_modifies = fields.Char(
         string="Numero del documento que modifica")
@@ -161,7 +162,7 @@ class account_invoice(models.Model):
 
     # Factura de Cliente - Invoice
     export_invoice = fields.Boolean(string="Fac.- Exp.")
-    exchange_rate = fields.Char(string="Tipo de Cambio")
+    exchange_rate = fields.Float(string="Tipo de Cambio")
     date_document = fields.Date(string="Fecha del Documento")
 
     # Para filtrar
@@ -180,10 +181,8 @@ class account_invoice(models.Model):
         for rec in self:
             # Obtener el correlativo General de la Factura en el Mes
             correlativo = ""
-            dominio = [('month_year_inv', 'like',
-                        rec.date_invoice.strftime("%m%Y"))]
-            facturas = self.env['account.invoice'].search(
-                dominio, order="id asc")
+            dominio = [('month_year_inv', 'like', rec.date_invoice.strftime("%m%Y"))]
+            facturas = self.env['account.invoice'].search(dominio, order="id asc")
             contador = 0
             for inv in facturas:
                 contador = contador + 1
@@ -197,60 +196,62 @@ class account_invoice(models.Model):
                     if imp.name == "otros":
                         impuesto_otros = rec.amount_tax
 
-            content = "%s00|%s|M%s|%s|%s|%s|%s|%s|%s||%s|%s|%s|%s|%s|%s|%s|%s|%s|%s||%s|%s|%s|%.2f|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % (
-                # Periodo del Asiento -> 1
-                rec.move_id.date.strftime("%Y/%m") or '',
-                # Correlativo de Factura -> 2
-                rec.move_id.name.replace("/", "") or '',
-                # Correlativo de todos los asientos no solo facturas -> 3
-                str(correlativo).zfill(4) or '',
-                # Fecha de la Factura -> 4
-                rec.date_invoice.strftime("%d/%m/%Y") or '',
-                # Fecha de Vencimiento -> 5
-                rec.date_due.strftime("%d/%m/%Y") or '',
-                rec.document_type_id.number or '',  # N° del Tipo de Documento -> 6
-                rec.number or '',  # Numero de la Factura -> 7
-                rec.year_emission_dua or '',  # Año de emision del DUA -> 8
-                rec.number[len(rec.number) - 4:len(rec.number)
-                ] or '',  # Numero -> 9
-                # Omitido -> 10
-                # N° Tipo de Documento Identidad -> 11
-                rec.document_type_identity_id.number or '',
-                rec.document_num or '',  # N° de Documento de Identidad -> 12
-                rec.partner_id.name or '',  # Nombre del Proveedor -> 13
-                rec.amount_untaxed or '',  # Base imponible -> 14
-                rec.amount_total or '',  # Total -> 15
-                rec.amount_untaxed or '',  # Base imponible -> 16
-                rec.amount_tax or '',  # Impuesto -> 17
-                rec.amount_untaxed or '',  # Base imponible -> 18
-                rec.amount_tax or '',  # Impuesto -> 19
-                rec.residual or '',  # Total Adeudado -> 20
-                # Dejar en blando -> 21
-                impuesto_otros or '',  # Otros de las Lineas -> 22
-                rec.amount_total or '',  # Total -> 23
-                rec.currency_id.name or '',  # Tipo de moneda -> 24
-                rec.currency_id.rate or '',  # Tipo de Cambio-> 25
-                rec.date_document_modifies or '',  # Fecha del documento que modifica -> 26
-                # Tipo del documento que modifica -> 27
-                rec.type_document_modifies.number or '',
-                rec.num_document_modifies or '',  # Numero del documento que modifica -> 28
-                rec.code_dua.number or '',  # Codigo DUA -> 29
-                rec.num_dua or '',  # Numero DUA -> 30
-                rec.date_detraction or '',  # Fecha de Detracciones -> 31
-                rec.num_detraction or '',  # Numero de Detracciones -> 32
-                rec.proof_mark or '',  # Marca de Comprobante -> 33
-                rec.classifier_good.number or '',  # Clasificador de Bienes -> 34
-                '',  # -> 35
-                '',  # -> 36
-                '',  # -> 37
-                '',  # -> 38
-                '',  # -> 39
-                '',  # -> 40
-            )
+            content = "%s00|%s|M%s|%s|%s|%s|%s|%s|%s||%s|%s|%s|%s|%s|%s|%s|%s|%s|%s||%s|%s|%s|%.2f|%s|%s|%s|%s|" \
+                      "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % (
+                          # Periodo del Asiento -> 1
+                          rec.move_id.date.strftime("%Y/%m") or '',
+                          # Correlativo de Factura -> 2
+                          rec.move_id.name.replace("/", "") or '',
+                          # Correlativo de todos los asientos no solo facturas -> 3
+                          str(correlativo).zfill(4) or '',
+                          # Fecha de la Factura -> 4
+                          rec.date_invoice.strftime("%d/%m/%Y") or '',
+                          # Fecha de Vencimiento -> 5
+                          rec.date_due.strftime("%d/%m/%Y") or '',
+                          rec.document_type_id.number or '',  # N° del Tipo de Documento -> 6
+                          rec.number or '',  # Numero de la Factura -> 7
+                          rec.year_emission_dua or '',  # Año de emision del DUA -> 8
+                          rec.number[len(rec.number) - 4:len(rec.number)
+                          ] or '',  # Numero -> 9
+                          # Omitido -> 10
+                          # N° Tipo de Documento Identidad -> 11
+                          rec.document_type_identity_id.number or '',
+                          rec.document_num or '',  # N° de Documento de Identidad -> 12
+                          rec.partner_id.name or '',  # Nombre del Proveedor -> 13
+                          rec.amount_untaxed or '',  # Base imponible -> 14
+                          rec.amount_total or '',  # Total -> 15
+                          rec.amount_untaxed or '',  # Base imponible -> 16
+                          rec.amount_tax or '',  # Impuesto -> 17
+                          rec.amount_untaxed or '',  # Base imponible -> 18
+                          rec.amount_tax or '',  # Impuesto -> 19
+                          rec.residual or '',  # Total Adeudado -> 20
+                          # Dejar en blando -> 21
+                          impuesto_otros or '',  # Otros de las Lineas -> 22
+                          rec.amount_total or '',  # Total -> 23
+                          rec.currency_id.name or '',  # Tipo de moneda -> 24
+                          rec.exchange_rate or 0.00,  # Tipo de Cambio-> 25
+                          rec.date_document_modifies.strftime("%d/%m/%Y") or '',
+                          # Fecha del documento que modifica -> 26
+                          # Tipo del documento que modifica -> 27
+                          rec.type_document_modifies_id.number or '',
+                          rec.num_document_modifies or '',  # Numero del documento que modifica -> 28
+                          rec.code_dua.number or '',  # Codigo DUA -> 29
+                          rec.num_dua or '',  # Numero DUA -> 30
+                          rec.date_detraction or '',  # Fecha de Detracciones -> 31
+                          rec.num_detraction or '',  # Numero de Detracciones -> 32
+                          rec.proof_mark or '',  # Marca de Comprobante -> 33
+                          rec.classifier_good.number or '',  # Clasificador de Bienes -> 34
+                          '',  # -> 35
+                          '',  # -> 36
+                          '',  # -> 37
+                          '',  # -> 38
+                          '',  # -> 39
+                          '',  # -> 40
+                      )
             return content
 
     def _generate_txt_invoice(self):
-        content = '-'
+        content = "-"
         for rec in self:
 
             # Obtener el correlativo General de la Factura en el Mes
@@ -333,6 +334,22 @@ class account_invoice(models.Model):
                     if imp.name == "arroz pilado":
                         impuesto_22 = rec.amount_tax
 
+            # 34 -> Fechas
+            codigo_34 = ''
+            if rec.date_invoice != False and rec.date_document != False:
+                if rec.date_invoice.strftime("%m%Y") == rec.date_document.strftime("%m%Y"):
+                    codigo_34 = '1'
+                else:
+                    if rec.date_invoice.strftime("%Y") != rec.date_document.strftime("%Y"):
+                        codigo_34 = '9'
+                    else:
+                        if int(rec.date_invoice.strftime("%m")) == int(rec.date_document.strftime("%m")) - 1:
+                            codigo_34 = '1'
+                        else:
+                            codigo_34 = '9'
+            else:
+                raise ValidationError("La factura " + rec.number + " no tiene todas las fechas")
+
             content = "%s|%s|%s|%s|%s|%s|%s|||%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%.2f|%s|%s|%s|%s||||%s|" % (
                 rec.move_id.date.strftime("%Y%m") or '',  # Periodo del Asiento -> 1
                 rec.move_id.name.replace("/", "") or '',  # Correlativo de Factura -> 2
@@ -359,17 +376,16 @@ class account_invoice(models.Model):
                 rec.amount_tax or '',  # Impuesto -> 23
                 rec.amount_total or '',  # Total -> 24
                 rec.currency_id.name or '',  # Tipo de moneda -> 25
-                rec.exchange_rate or '',  # Tipo de Cambio-> 26
-                rec.date_document_modifies or '',  # Fecha del Documento Asociado -> 27
-                rec.type_document_modifies or '',  # Tipo del Documento Asociado -> 28
+                rec.exchange_rate or 0.00,  # Tipo de Cambio-> 26
+                rec.date_document_modifies.strftime("%d/%m/%Y") or '',  # Fecha del Documento Asociado -> 27
+                rec.type_document_modifies_id.number or '',  # Tipo del Documento Asociado -> 28
                 rec.series_document_modifies or '',  # Serie del Documento Asociado -> 29
                 rec.num_document_modifies or '',  # Numero del Documento Asociado -> 30
-                # 3 campos en blanco
-                '' or ''
-                # 1 campo en blanco
+                # 3 campos en blanco -> 31, 32, 33
+                codigo_34 or '',  # -> 34
+                # 1 campo en blanco -> 35
             )
-            return content
-
+        return content
 
     # Method to hide Apply Retention
     @api.depends('document_type_id')
@@ -381,28 +397,28 @@ class account_invoice(models.Model):
             else:
                 record.hide_apply_retention = True
 
-
     @api.depends('detraccion', 'residual_signed', 'amount_total_signed')
     @api.multi
     def _detraction_is_paid(self):
         for rec in self:
             # rec.detraccion_paid = True
-            valor = rec.amount_total_signed - rec.residual_signed
-            if valor >= rec.detraccion:
-                rec.detraccion_paid = True
+            if rec.state == 'draft':
+                rec.detraccion_paid = False
             else:
-                if rec.state == "Paid":
+                valor = rec.amount_total_signed - rec.residual_signed
+                if valor >= rec.detraccion:
                     rec.detraccion_paid = True
                 else:
-                    rec.detraccion_paid = False
-
+                    if rec.state == "Paid":
+                        rec.detraccion_paid = True
+                    else:
+                        rec.detraccion_paid = False
 
     # Load the retention of the selected provider
     @api.onchange('partner_id')
     def _onchange_proveedor(self):
         # if len(self.detrac_id) <= 0 :
         self.detrac_id = self.partner_id.detrac_id
-
 
     # Calculate the value of the Detraction
     @api.depends('amount_total', 'detrac_id')
@@ -411,7 +427,6 @@ class account_invoice(models.Model):
         for record in self:
             record.detraccion = record.amount_total * \
                                 (record.detrac_id.detrac / 100)
-
 
     # # Trial Action
     # @api.multi
