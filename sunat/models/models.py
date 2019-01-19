@@ -86,19 +86,23 @@ class classification_goods(models.Model):
         for rec in self:
             rec.name = "%s %s" % (rec.number or '', rec.description or '')
 
-class proveedor(models.Model):
+
+class Partner(models.Model):
     _inherit = 'res.partner'
 
     detrac_id = fields.Many2one('sunat.detracciones', 'Detraccion')
-    # document_type_identity_id = fields.Many2one(
-    #     'sunat.document_type_identity', 'Tipo de Documento de Identidad')
-    # document_num_identity = fields.Integer(
-    #     string="Numero de Documento de Identidad")
-    # person_type_sunat = fields.Selection(string="Tipo de Operación",
-    #                                      selection=[('01-Persona Natural', '01-Persona Natural'), (
-    #                                          '02-Persona Jurídica', '02-Persona Jurídica'),
-    #                                          ('03-Sujeto no Domiciliado', '03-Sujeto no Domiciliado')])
 
+    document_type_identity_id = fields.Many2one(
+        'sunat.document_type_identity', 'Tipo de Documento de Identidad')
+
+    document_num_identity = fields.Integer(
+        string="Numero de Documento de Identidad")
+    
+    person_type = fields.Selection(string="Tipo de Persona",
+                                         selection=[('01-Persona Natural', '01-Persona Natural'), (
+                                             '02-Persona Jurídica', '02-Persona Jurídica'),
+                                                    ('03-Sujeto no Domiciliado', '03-Sujeto no Domiciliado')])
+# Partner()
 
 class account_invoice(models.Model):
     _inherit = "account.invoice"
