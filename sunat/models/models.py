@@ -97,11 +97,13 @@ class Partner(models.Model):
 
     document_num_identity = fields.Integer(
         string="Numero de Documento de Identidad")
-    
+
     person_type = fields.Selection(string="Tipo de Persona",
-                                         selection=[('01-Persona Natural', '01-Persona Natural'), (
-                                             '02-Persona Jurídica', '02-Persona Jurídica'),
-                                                    ('03-Sujeto no Domiciliado', '03-Sujeto no Domiciliado')])
+                                   selection=[('01-Persona Natural', '01-Persona Natural'), (
+                                       '02-Persona Jurídica', '02-Persona Jurídica'),
+                                              ('03-Sujeto no Domiciliado', '03-Sujeto no Domiciliado')])
+
+
 # Partner()
 
 class account_invoice(models.Model):
@@ -262,84 +264,118 @@ class account_invoice(models.Model):
                 if inv.number == rec.number:
                     correlativo = "%s" % (contador)
 
-            # 13 ->
+            # 13 -> Factura de Exportacion
+            factura_exportacion = ""
+            if rec.export_invoice == True:
+                factura_exportacion = rec.amount_total
 
-            content = "%s|%s|%s|%s|%s|%s|%s|||" % (
-                # Periodo del Asiento -> 1
-                rec.move_id.date.strftime("%Y%m") or '',
-                # Correlativo de Factura -> 2
-                rec.move_id.name.replace("/", "") or '',
-                # Correlativo de todos los asientos no solo facturas -> 3
-                str(correlativo).zfill(4) or '',
-                # Fecha de la Factura -> 4
-                rec.date_invoice.strftime("%d/%m/%Y") or '',
-                # Fecha de Vencimiento -> 5
-                rec.date_due.strftime("%d/%m/%Y") or '',
+            # 14 -> Base imponible
+            base_imponible_14 = ""
+            for line in rec.invoice_line_ids:
+                for imp in line.invoice_line_tax_ids:
+                    if imp.name == "ISC":
+                        base_imponible_14 = rec.amount_untaxed
+
+            # 15 -> Impuesto
+            impuesto_15 = ""
+            for line in rec.invoice_line_ids:
+                if rec.document_type_id.number == '07' and rec.document_modify == True:
+                    if int(rec.date_invoice.strftime("%m")) > int(rec.date_document_modifies.strftime("%m")):
+                        impuesto_15 = rec.amount_tax
+
+            # 16 -> Impuesto
+            impuesto_16 = ""
+            for line in rec.invoice_line_ids:
+                if rec.document_type_id.number == '07' and rec.document_modify == True:
+                    if int(rec.date_invoice.strftime("%m")) == int(rec.date_document_modifies.strftime("%m")):
+                        impuesto_16 = rec.amount_tax
+
+            # 17 -> Impuesto
+            impuesto_17 = ""
+            for line in rec.invoice_line_ids:
+                if rec.document_type_id.number == '07' and rec.document_modify == True:
+                    if rec.date_invoice > rec.date_document_modifies:
+                        impuesto_17 = rec.amount_tax
+
+            content = "%s|%s|%s|%s|%s|%s|%s|||%s|%s|%s|%s|%s|%s|%s" % (
+                rec.move_id.date.strftime("%Y%m") or '',  # Periodo del Asiento -> 1
+                rec.move_id.name.replace("/", "") or '',  # Correlativo de Factura -> 2
+                str(correlativo).zfill(4) or '',  # Correlativo de todos los asientos no solo facturas -> 3
+                rec.date_invoice.strftime("%d/%m/%Y") or '',  # Fecha de la Factura -> 4
+                rec.date_due.strftime("%d/%m/%Y") or '',  # Fecha de Vencimiento -> 5
                 rec.document_type_id.number or '',  # N° del Tipo de Documento -> 6
-                rec.number[len(rec.number) - 9:len(rec.number) - \
-                                               5] or '',  # Numero de Documento -> 7
+                rec.number[len(rec.number) - 9:len(rec.number) - 5] or '',  # Numero de Documento -> 7
                 # Dejan en blanco -> 8
                 # Dejan en blanco -> 9
-                # Validar el 10
-                rec.number[len(rec.number) - 4:len(rec.number)
-                ] or '',  # Numero -> 11
+                rec.partner_id.document_type_identity_id.number or '',  # Validar el 10
+                rec.number[len(rec.number) - 4:len(rec.number)] or '',  # Numero -> 11
                 rec.partner_id.name or '',  # Nombre del Proveedor -> 12
+                factura_exportacion or '',  # Factura de Exportacion -> 13
+                base_imponible_14 or '',  # Base Imponible -> 14
+                impuesto_15 or '',  # Impuesto -> 15
+                impuesto_16 or '',  # Impuesto -> 16
+                impuesto_17 or '',  # Impuesto -> 17
 
             )
             return content
 
-    # Method to hide Apply Retention
-    @api.depends('document_type_id')
-    @api.multi
-    def _compute_hide_apply_retention(self):
-        for record in self:
-            if record.document_type_id.number == '02':
-                record.hide_apply_retention = False
-            else:
-                record.hide_apply_retention = True
 
-    @api.depends('detraccion', 'residual_signed', 'amount_total_signed')
-    @api.multi
-    def _detraction_is_paid(self):
-        for rec in self:
-            # rec.detraccion_paid = True
-            valor = rec.amount_total_signed - rec.residual_signed
-            if valor >= rec.detraccion:
+# Method to hide Apply Retention
+@api.depends('document_type_id')
+@api.multi
+def _compute_hide_apply_retention(self):
+    for record in self:
+        if record.document_type_id.number == '02':
+            record.hide_apply_retention = False
+        else:
+            record.hide_apply_retention = True
+
+
+@api.depends('detraccion', 'residual_signed', 'amount_total_signed')
+@api.multi
+def _detraction_is_paid(self):
+    for rec in self:
+        # rec.detraccion_paid = True
+        valor = rec.amount_total_signed - rec.residual_signed
+        if valor >= rec.detraccion:
+            rec.detraccion_paid = True
+        else:
+            if rec.state == "Paid":
                 rec.detraccion_paid = True
             else:
-                if rec.state == "Paid":
-                    rec.detraccion_paid = True
-                else:
-                    rec.detraccion_paid = False
+                rec.detraccion_paid = False
 
-    # Load the retention of the selected provider
-    @api.onchange('partner_id')
-    def _onchange_proveedor(self):
-        # if len(self.detrac_id) <= 0 :
-        self.detrac_id = self.partner_id.detrac_id
 
-    # Calculate the value of the Detraction
-    @api.depends('amount_total', 'detrac_id')
-    @api.multi
-    def _calcular_detrac(self):
-        for record in self:
-            record.detraccion = record.amount_total * \
-                                (record.detrac_id.detrac / 100)
+# Load the retention of the selected provider
+@api.onchange('partner_id')
+def _onchange_proveedor(self):
+    # if len(self.detrac_id) <= 0 :
+    self.detrac_id = self.partner_id.detrac_id
 
-    # # Trial Action
-    # @api.multi
-    # def action_prueba(self):
-    #     for rec in self:
-    #         rec.reference = 'FacturaDePrueba'
-    #     return True
 
-    @api.depends('residual_signed', 'detraccion')
-    @api.multi
-    def _total_pagar_factura(self):
-        for record in self:
-            if record.detraccion_paid == True:
-                record.total_pagar = record.residual_signed - record.detraccion
-                if record.total_pagar < 0:
-                    record.total_pagar = 0
-            else:
-                record.total_pagar = record.residual_signed
+# Calculate the value of the Detraction
+@api.depends('amount_total', 'detrac_id')
+@api.multi
+def _calcular_detrac(self):
+    for record in self:
+        record.detraccion = record.amount_total * \
+                            (record.detrac_id.detrac / 100)
+
+
+# # Trial Action
+# @api.multi
+# def action_prueba(self):
+#     for rec in self:
+#         rec.reference = 'FacturaDePrueba'
+#     return True
+
+@api.depends('residual_signed', 'detraccion')
+@api.multi
+def _total_pagar_factura(self):
+    for record in self:
+        if record.detraccion_paid == True:
+            record.total_pagar = record.residual_signed - record.detraccion
+            if record.total_pagar < 0:
+                record.total_pagar = 0
+        else:
+            record.total_pagar = record.residual_signed
