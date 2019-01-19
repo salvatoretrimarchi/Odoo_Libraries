@@ -226,9 +226,9 @@ class account_invoice(models.Model):
                 rec.residual or '',  # Total Adeudado -> 20
                 # Dejar en blando -> 21
                 impuesto_otros or '',  # Otros de las Lineas -> 22
-                rec.residual or '',  # Total Adeudado -> 23
+                rec.amount_total or '',  # Total -> 23
                 rec.currency_id.name or '',  # Tipo de moneda -> 24
-                rec.currency_id.rate or '',  # -> 25
+                rec.currency_id.rate or '',  # Tipo de Cambio-> 25
                 rec.date_document_modifies or '',  # Fecha del documento que modifica -> 26
                 # Tipo del documento que modifica -> 27
                 rec.type_document_modifies.number or '',
@@ -297,7 +297,42 @@ class account_invoice(models.Model):
                     if rec.date_invoice > rec.date_document_modifies:
                         impuesto_17 = rec.amount_tax
 
-            content = "%s|%s|%s|%s|%s|%s|%s|||%s|%s|%s|%s|%s|%s|%s" % (
+            # 18 -> Importe exonerado
+            importe_exonerado_18 = ""
+            for line in rec.invoice_line_ids:
+                for imp in line.invoice_line_tax_ids:
+                    if imp.name == "exonerado":
+                        importe_exonerado_18 = rec.amount_total
+
+            # 19 -> Importe inafecto
+            importe_inafecto_19 = ""
+            for line in rec.invoice_line_ids:
+                for imp in line.invoice_line_tax_ids:
+                    if imp.name == "inafecto":
+                        importe_inafecto_19 = rec.amount_total
+
+            # 20 -> Impuesto
+            impuesto_20 = ""
+            for line in rec.invoice_line_ids:
+                for imp in line.invoice_line_tax_ids:
+                    if imp.name == "ISC":
+                        impuesto_20 = rec.amount_tax
+
+            # 21 -> Base imponible
+            base_imponible_21 = ""
+            for line in rec.invoice_line_ids:
+                for imp in line.invoice_line_tax_ids:
+                    if imp.name == "arroz pilado":
+                        base_imponible_21 = rec.amount_untaxed
+
+            # 22 -> Impuesto
+            impuesto_22 = ""
+            for line in rec.invoice_line_ids:
+                for imp in line.invoice_line_tax_ids:
+                    if imp.name == "arroz pilado":
+                        impuesto_22 = rec.amount_tax
+
+            content = "%s|%s|%s|%s|%s|%s|%s|||%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%.2f|%s|%s" % (
                 rec.move_id.date.strftime("%Y%m") or '',  # Periodo del Asiento -> 1
                 rec.move_id.name.replace("/", "") or '',  # Correlativo de Factura -> 2
                 str(correlativo).zfill(4) or '',  # Correlativo de todos los asientos no solo facturas -> 3
@@ -315,7 +350,19 @@ class account_invoice(models.Model):
                 impuesto_15 or '',  # Impuesto -> 15
                 impuesto_16 or '',  # Impuesto -> 16
                 impuesto_17 or '',  # Impuesto -> 17
-
+                importe_exonerado_18 or '',  # Importe exonerado -> 18
+                importe_inafecto_19 or '',  # Importe inafecto -> 19
+                impuesto_20 or '',  # Impuesto -> 20
+                base_imponible_21 or '',  # Base Imponible -> 21
+                impuesto_22 or '',  # Impuesto -> 22
+                rec.amount_tax or '',  # Impuesto -> 23
+                rec.amount_total or '',  # Total -> 24
+                rec.currency_id.name or '',  # Tipo de moneda -> 25
+                rec.exchange_rate or '',  # Tipo de Cambio-> 26
+                rec.date_document_modifies or '', # Fecha del Documento Asociado -> 27
+                rec.type_document_modifies or '', # Tipo del Documento Asociado -> 28
+                rec.series_document_modifies or '', # Serie del Documento Asociado -> 29
+                rec.num_document_modifies or '', # Numero del Documento Asociado -> 30
             )
             return content
 
