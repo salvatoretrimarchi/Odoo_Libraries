@@ -196,6 +196,11 @@ class account_invoice(models.Model):
                     if imp.name == "otros":
                         impuesto_otros = rec.amount_tax
 
+            # 26 -> Fecha
+            campo_26 = ""
+            if rec.date_document_modifies != False:
+                campo_26 = rec.date_document_modifies.strftime("%d/%m/%Y")
+
             content = "%s00|%s|M%s|%s|%s|%s|%s|%s|%s||%s|%s|%s|%s|%s|%s|%s|%s|%s|%s||%s|%s|%s|%.2f|%s|%s|%s|%s|" \
                       "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s" % (
                           # Periodo del Asiento -> 1
@@ -230,10 +235,8 @@ class account_invoice(models.Model):
                           rec.amount_total or '',  # Total -> 23
                           rec.currency_id.name or '',  # Tipo de moneda -> 24
                           rec.exchange_rate or 0.00,  # Tipo de Cambio-> 25
-                          rec.date_document_modifies.strftime("%d/%m/%Y") or '',
-                          # Fecha del documento que modifica -> 26
-                          # Tipo del documento que modifica -> 27
-                          rec.type_document_modifies_id.number or '',
+                          campo_26 or '',  # Fecha del documento que modifica -> 26
+                          rec.type_document_modifies_id.number or '',  # Tipo del documento que modifica -> 27
                           rec.num_document_modifies or '',  # Numero del documento que modifica -> 28
                           rec.code_dua.number or '',  # Codigo DUA -> 29
                           rec.num_dua or '',  # Numero DUA -> 30
