@@ -162,6 +162,7 @@ class account_invoice(models.Model):
     # Factura de Cliente - Invoice
     export_invoice = fields.Boolean(string="Fac.- Exp.")
     exchange_rate = fields.Char(string="Tipo de Cambio")
+    date_document = fields.Date(string="Fecha del Documento")
 
     # Para filtrar
     month_year_inv = fields.Char(
