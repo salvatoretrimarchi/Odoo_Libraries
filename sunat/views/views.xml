@@ -140,7 +140,7 @@
               </group>
               <group>
                 <field name="function" placeholder="e.g. Sales Director" attrs="{'invisible': [('is_company','=', True)]}"/>
-                <field name="phone" widget="phone" invisible="1"/>
+                <field name="phone" widget="phone"/>
                 <field name="mobile" widget="phone"/>
                 <field name="user_ids" invisible="1"/>
                 <field name="email" widget="email" context="{'gravatar_image': True}" attrs="{'required': [('user_ids','!=', [])]}"/>
