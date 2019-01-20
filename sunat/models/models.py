@@ -27,10 +27,12 @@ class document_type(models.Model):
     _name = 'sunat.document_type'
     _description = "Tipos de Documentos"
 
-    name = fields.Text(compute="_document_type_full")
+    name = fields.Text(compute="_document_type_full", store=True)
     number = fields.Char(string="Numero", size=2, translate=True, index=True)
     description = fields.Text(string="Descripción", translate=True)
 
+    @api.depends('number', 'description')
+    @api.multi
     def _document_type_full(self):
         for rec in self:
             rec.name = "%s %s" % (rec.number or '', rec.description or '')
@@ -40,10 +42,12 @@ class document_type_identity(models.Model):
     _name = 'sunat.document_type_identity'
     _description = "Tipos de Documentos de Identidad"
 
-    name = fields.Text(compute="_document_type_identity_full")
+    name = fields.Text(compute="_document_type_identity_full", store=True)
     number = fields.Char(string="Numero", size=2, translate=True, index=True)
     description = fields.Text(string="Descripción", translate=True)
 
+    @api.depends('number', 'description')
+    @api.multi
     def _document_type_identity_full(self):
         for rec in self:
             rec.name = "%s %s" % (rec.number or '', rec.description or '')
@@ -66,10 +70,12 @@ class customs_code(models.Model):
     _name = 'sunat.customs_code'
     _description = "Codigos de Aduana"
 
-    name = fields.Text(compute="_customs_code_full")
+    name = fields.Text(compute="_customs_code_full", store=True)
     number = fields.Char(string="Numero", size=3, translate=True, index=True)
     description = fields.Text(string="Descripción", translate=True)
 
+    @api.depends('number', 'description')
+    @api.multi
     def _customs_code_full(self):
         for rec in self:
             rec.name = "%s %s" % (rec.number or '', rec.description or '')
@@ -79,10 +85,12 @@ class classification_goods(models.Model):
     _name = 'sunat.classification_goods'
     _description = "Claseficación de Bienes"
 
-    name = fields.Text(compute="_classification_goods_full")
+    name = fields.Text(compute="_classification_goods_full", store=True)
     number = fields.Char(string="Numero", size=3, translate=True, index=True)
     description = fields.Text(string="Descripción", translate=True)
 
+    @api.depends('number', 'description')
+    @api.multi
     def _classification_goods_full(self):
         for rec in self:
             rec.name = "%s %s" % (rec.number or '', rec.description or '')
@@ -117,9 +125,6 @@ class account_invoice(models.Model):
         string="Detraction Value", compute="_calcular_detrac", store=True)
     # Apply Retention
     apply_retention = fields.Boolean(string="Apply Retention")
-    # Hide or not Apply Retention
-    hide_apply_retention = fields.Boolean(
-        string='Hide', compute="_compute_hide_apply_retention")
     # Detraction Paid
     detraccion_paid = fields.Boolean(
         string="Detraction Paid", compute="_detraction_is_paid", store=True)
@@ -160,6 +165,11 @@ class account_invoice(models.Model):
     export_invoice = fields.Boolean(string="Fac.- Exp.")
     exchange_rate = fields.Float(string="Tipo de Cambio")
     date_document = fields.Date(string="Fecha del Documento")
+
+    # Hide or not Apply Retention
+    hide_apply_retention = fields.Boolean(string='Hide', compute="_compute_hide_apply_retention")
+    # Detraccion Aplica
+    hide_detraction = fields.Boolean(compute="_compute_hide_detraction")
 
     # Para filtrar
     month_year_inv = fields.Char(
@@ -396,16 +406,24 @@ class account_invoice(models.Model):
             else:
                 record.hide_apply_retention = True
 
+    @api.depends('detrac_id')
+    @api.multi
+    def _compute_hide_detraction(self):
+        for rec in self:
+            if rec.detrac_id.name == 'No Aplica':
+                rec.hide_detraction = True
+            else:
+                rec.hide_detraction = False
+
     @api.depends('detraccion', 'residual_signed', 'amount_total_signed')
     @api.multi
     def _detraction_is_paid(self):
         for rec in self:
-            # rec.detraccion_paid = True
-            if rec.state == 'draft':
+            if rec.state == 'draft' or rec.hide_detraction == True:
                 rec.detraccion_paid = False
             else:
                 valor = rec.amount_total_signed - rec.residual_signed
-                if valor >= rec.detraccion:
+                if valor >= (rec.detraccion) - 0.1:
                     rec.detraccion_paid = True
                 else:
                     if rec.state == "Paid":

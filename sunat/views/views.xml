@@ -45,7 +45,8 @@
                 <field name="currency_type_id" invisible="1"/>
             </field>
             <field name="payments_widget" position="before">
-                <field name="detraccion"/>
+                <field name="hide_detraction" invisible="1"/>
+                <field name="detraccion" attrs="{'invisible':[('hide_detraction', '=', True)]}"/>
             </field>
             <field name="partner_id" position="before">
                 <field name="operation_type"/>
