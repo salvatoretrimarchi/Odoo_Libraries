@@ -112,8 +112,6 @@ class Partner(models.Model):
                                                                          '03-Sujeto no Domiciliado')])
 
 
-# Partner()
-
 class account_invoice(models.Model):
     _inherit = "account.invoice"
     # _rec_name = 'month_year_inv'
@@ -134,14 +132,13 @@ class account_invoice(models.Model):
 
     # Campos necesarios para el TXT
     fourth_suspension = fields.Boolean(string="Suspencion de Cuarta")
-    document_type_identity_id = fields.Many2one('sunat.document_type_identity', 'Tipo de Documento de Identidad')
+
     operation_type = fields.Selection(string="Tipo de Operación", selection=[('1.-Exportación', '1.-Exportación')])
     num_dua = fields.Char(string="N° DUA")
     year_emission_dua = fields.Char(string="Año de emisión de la DUA")
 
     # Document Type
     document_type_id = fields.Many2one('sunat.document_type', 'Document Type')
-    document_num_identity = fields.Char(string="Numero de Documento")
     currency_type_id = fields.Many2one('sunat.currency_type', 'Tipo de Moneda')
 
     # Detracciones
@@ -225,8 +222,8 @@ class account_invoice(models.Model):
                           ] or '',  # Numero -> 9
                           # Omitido -> 10
                           # N° Tipo de Documento Identidad -> 11
-                          rec.document_type_identity_id.number or '',
-                          rec.document_num_identity or '',  # N° de Documento de Identidad -> 12
+                          rec.partner_id.document_type_identity_id.number or '',
+                          rec.partner_id.document_num_identity or '',  # N° de Documento de Identidad -> 12
                           rec.partner_id.name or '',  # Nombre del Proveedor -> 13
                           rec.amount_untaxed or '',  # Base imponible -> 14
                           rec.amount_total or '',  # Total -> 15
