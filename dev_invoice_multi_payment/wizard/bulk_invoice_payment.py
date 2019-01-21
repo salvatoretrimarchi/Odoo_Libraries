@@ -25,9 +25,13 @@ class bulk_invoice(models.TransientModel):
     invoice_id = fields.Many2one('account.invoice', string='Invoice')
     partner_id = fields.Many2one('res.partner', string='Partner')
     amount = fields.Float('Amount')
+
     paid_amount = fields.Float('Pay Amount')
     bulk_invoice_id = fields.Many2one('bulk.inv.payment')
     bulk_detraction_id = fields.Many2one('bulk.inv.detracction')
+
+    bank_id = fields.Char(string='Banco', readonly=True)
+    # bank_id = fields.Many2one('res.partner.bank', string='Banks')
 
 
 class bulk_inv_payment(models.TransientModel):
@@ -599,10 +603,17 @@ class bulk_inv_detraction(models.TransientModel):
                 raise ValidationError('Please Select Open Invoices.')
             if inv.detraccion_paid == True:
                 raise ValidationError('Only invoices without detraction payment.')
+            # Obtener Cuenta Bancaria
+            cuenta_bank_detrac = ""
+            for rec in inv.partner_id.bank_ids:
+                if rec.is_detraction:
+                    cuenta_bank_detrac = rec.bank_id.name + " - " + rec.bank_id.bic
+
             vals.append((0, 0, {
                 'invoice_id': inv and inv.id or False,
                 'partner_id': inv and inv.partner_id.id or False,
                 'amount': inv.residual or 0.0,
+                'bank_id': cuenta_bank_detrac or '',
                 'paid_amount': inv.detraction_residual or 0.0,
             }))
             if inv.type in ('out_invoice', 'out_refund'):
@@ -628,9 +639,9 @@ class bulk_inv_detraction(models.TransientModel):
         return res
 
     name = fields.Char('Name', default='hello')
-    payment_type = fields.Selection(
-        [('outbound', 'Send Money'), ('inbound', 'Receive Money'), ('transfer', 'Transfer')], string="Payment Type",
-        required="1")
+    payment_type = fields.Selection([('outbound', 'Send Money'),
+                                     ('inbound', 'Receive Money'), ('transfer', 'Transfer')], string="Payment Type",
+                                    required="1")
     payment_date = fields.Date('Payment Date', required="1")
     communication = fields.Char('Memo')
     partner_type = fields.Selection([('customer', 'Customer'), ('supplier', 'Supplier')], string='Partner Type')
