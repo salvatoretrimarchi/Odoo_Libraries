@@ -207,6 +207,21 @@
         </field>
     </record>
 
+    <!-- Inherit Form View to Modify it -->
+    <record id="partner_bank_tree" model="ir.ui.view">
+        <field name="name">partner.bank.tree</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='acc_number']" position="after">
+                <field name="priority"/>
+                <field name="is_detraction"/>
+            </xpath>
+
+        </field>
+    </record>
+
     <!-- Accion de Prueba -->
     <!-- <record id="prueba" model="ir.actions.server">
       <field name="name">Prueba</field>

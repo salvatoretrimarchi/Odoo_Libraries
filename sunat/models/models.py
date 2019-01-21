@@ -112,6 +112,13 @@ class Partner(models.Model):
                                                                          '03-Sujeto no Domiciliado')])
 
 
+class res_partner_bank(models.Model):
+    _inherit = 'res.partner.bank'
+
+    is_detraction = fields.Boolean(string="Detracción")
+    priority = fields.Integer(string="Prioridad")
+
+
 class account_invoice(models.Model):
     _inherit = "account.invoice"
     # _rec_name = 'month_year_inv'
