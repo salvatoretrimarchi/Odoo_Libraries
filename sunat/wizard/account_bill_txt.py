@@ -17,17 +17,15 @@ class AccountInvoiceConfirm(models.TransientModel):
     # Parametros
     date_month = fields.Char(string="Mes", size=2)
     date_year = fields.Char(string="Año", size=4)
-    type = fields.Selection(string="Factura de",
-                            selection=[
-                                ('out_invoice', 'Clientes'),
-                                ('in_invoice', 'Proveedores'),
-                            ])
+    type = fields.Selection(string="Factura de", selection=[('out_invoice', 'Clientes'), ('in_invoice', 'Proveedores')])
+    company_id = fields.Many2one('res.company', string='Compañia')
 
     @api.multi
     def generate_file(self):
         dominio = [('type', 'like', self.type),
                    ('state', 'not like', 'draft'),
-                   ('month_year_inv', 'like', self.date_month + "" + self.date_year)]
+                   ('month_year_inv', 'like', self.date_month + "" + self.date_year),
+                   ('company_id', '=', self.company_id.id)]
         # inv_ids = self._context.get('active_ids')
         # invoice_ids = self.env['account.invoice'].browse(inv_ids)
         invoice_ids = self.env['account.invoice'].search(dominio, order="id asc")

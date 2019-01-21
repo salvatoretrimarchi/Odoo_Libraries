@@ -12,6 +12,7 @@
                         <field name="date_month" required="True"/>
                         <field name="date_year" required="True"/>
                         <field name="type" required="True"/>
+                        <field name="company_id" required="True"/>
                         <footer states="choose">
                             <button name="generate_file" string="Generar" type="object" class="oe_highlight"/>
                             Or
