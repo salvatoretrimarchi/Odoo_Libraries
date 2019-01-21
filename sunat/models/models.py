@@ -104,13 +104,12 @@ class Partner(models.Model):
     document_type_identity_id = fields.Many2one(
         'sunat.document_type_identity', 'Tipo de Documento de Identidad')
 
-    document_num_identity = fields.Integer(
-        string="Numero de Documento de Identidad")
+    document_num_identity = fields.Char(string="Numero de Documento de Identidad")
 
-    person_type = fields.Selection(string="Tipo de Persona",
-                                   selection=[('01-Persona Natural', '01-Persona Natural'), (
-                                       '02-Persona Jurídica', '02-Persona Jurídica'),
-                                              ('03-Sujeto no Domiciliado', '03-Sujeto no Domiciliado')])
+    person_type = fields.Selection(string="Tipo de Persona", selection=[('01-Persona Natural', '01-Persona Natural'),
+                                                                        ('02-Persona Jurídica', '02-Persona Jurídica'),
+                                                                        ('03-Sujeto no Domiciliado',
+                                                                         '03-Sujeto no Domiciliado')])
 
 
 # Partner()
@@ -121,28 +120,25 @@ class account_invoice(models.Model):
     # Detraction
     detrac_id = fields.Many2one('sunat.detracciones', 'Detraccion')
     # Value of the Detraction
-    detraccion = fields.Monetary(
-        string="Detraction Value", compute="_calcular_detrac", store=True)
+    detraccion = fields.Monetary(string="Detraction Value", compute="_calcular_detrac", store=True)
     # Apply Retention
     apply_retention = fields.Boolean(string="Apply Retention")
     # Detraction Paid
-    detraccion_paid = fields.Boolean(
-        string="Detraction Paid", compute="_detraction_is_paid", store=True)
+    detraccion_paid = fields.Boolean(string="Detraction Paid", compute="_detraction_is_paid", store=True)
+    detraction_residual = fields.Monetary(string="Detraction To Pay", compute="_detraction_residual", store=True)
     # Total a Pagar
-    total_pagar = fields.Monetary(
-        string="Total a Pagar2", compute="_total_pagar_factura")
+    total_pagar = fields.Monetary(string="Total a Pagar2", compute="_total_pagar_factura")
 
     # Campos necesarios para el TXT
     fourth_suspension = fields.Boolean(string="Suspencion de Cuarta")
-    document_type_identity_id = fields.Many2one(
-        'sunat.document_type_identity', 'Tipo de Documento de Identidad')
-    operation_type = fields.Selection(string="Tipo de Operación", selection=[
-        ('1.-Exportación', '1.-Exportación')])
+    document_type_identity_id = fields.Many2one('sunat.document_type_identity', 'Tipo de Documento de Identidad')
+    operation_type = fields.Selection(string="Tipo de Operación", selection=[('1.-Exportación', '1.-Exportación')])
     num_dua = fields.Char(string="N° DUA")
     year_emission_dua = fields.Char(string="Año de emisión de la DUA")
+
     # Document Type
     document_type_id = fields.Many2one('sunat.document_type', 'Document Type')
-    document_num = fields.Integer(string="Numero de Documento")
+    document_num_identity2 = fields.Char(string="Numero de Documento")
     currency_type_id = fields.Many2one('sunat.currency_type', 'Tipo de Moneda')
 
     # Detracciones
@@ -227,7 +223,7 @@ class account_invoice(models.Model):
                           # Omitido -> 10
                           # N° Tipo de Documento Identidad -> 11
                           rec.document_type_identity_id.number or '',
-                          rec.document_num or '',  # N° de Documento de Identidad -> 12
+                          rec.document_num_identity2 or '',  # N° de Documento de Identidad -> 12
                           rec.partner_id.name or '',  # Nombre del Proveedor -> 13
                           rec.amount_untaxed or '',  # Base imponible -> 14
                           rec.amount_total or '',  # Total -> 15
@@ -430,6 +426,18 @@ class account_invoice(models.Model):
                         rec.detraccion_paid = True
                     else:
                         rec.detraccion_paid = False
+
+    @api.depends('detraccion', 'residual_signed', 'amount_total_signed')
+    @api.multi
+    def _detraction_residual(self):
+        for rec in self:
+            if rec.state == 'draft' or rec.hide_detraction == True:
+                rec.detraction_residual = 0
+            else:
+                valor = rec.amount_total_signed - rec.residual_signed
+                rec.detraction_residual = rec.detraccion - valor
+                if rec.detraction_residual < 0:
+                    rec.detraction_residual = 0
 
     # Load the retention of the selected provider
     @api.onchange('partner_id')

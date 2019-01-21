@@ -5,10 +5,10 @@
             <field name="name">account.bill.txt.form</field>
             <field name="model">account.bill.txt</field>
             <field name="arch" type="xml">
-                <form string="Generar TXT">
+                <form string="Generar PLE">
                     <field name="state" invisible="1"/>
                     <field name="txt_filename" invisible="1"/>
-                    <group states="choose" string="Generar TXT">
+                    <group states="choose" string="Generar PLE">
                         <field name="date_month" required="True"/>
                         <field name="date_year" required="True"/>
                         <field name="type" required="True"/>
@@ -35,7 +35,7 @@
         <act_window id="action_account_bill_txt"
                     multi="True"
                     key2="client_action_multi"
-                    name="Generate TXT"
+                    name="Generar PLE"
                     res_model="account.bill.txt"
                     src_model="account.invoice"
                     view_mode="form,tree"
