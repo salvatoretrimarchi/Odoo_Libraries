@@ -37,7 +37,7 @@
                 <field name="num_dua"/>
                 <field name="year_emission_dua"/>
                 <field name="document_type_identity_id"/>
-                <field name="document_num_identity2"/>
+                <field name="document_num_identity"/>
                 <field string="Detraccion" name="detrac_id" attrs="{'readonly':[['state','not in',['draft']]]}"/>
                 <field name="apply_retention" attrs="{'readonly':[['state','not in',['draft']]],'invisible':[('hide_apply_retention', '=', True)]}"/>
             </field>

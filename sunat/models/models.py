@@ -138,7 +138,7 @@ class account_invoice(models.Model):
 
     # Document Type
     document_type_id = fields.Many2one('sunat.document_type', 'Document Type')
-    document_num_identity2 = fields.Char(string="Numero de Documento")
+    document_num_identity = fields.Char(string="Numero de Documento")
     currency_type_id = fields.Many2one('sunat.currency_type', 'Tipo de Moneda')
 
     # Detracciones
@@ -223,7 +223,7 @@ class account_invoice(models.Model):
                           # Omitido -> 10
                           # N° Tipo de Documento Identidad -> 11
                           rec.document_type_identity_id.number or '',
-                          rec.document_num_identity2 or '',  # N° de Documento de Identidad -> 12
+                          rec.document_num_identity or '',  # N° de Documento de Identidad -> 12
                           rec.partner_id.name or '',  # Nombre del Proveedor -> 13
                           rec.amount_untaxed or '',  # Base imponible -> 14
                           rec.amount_total or '',  # Total -> 15
