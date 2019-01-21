@@ -29,6 +29,9 @@
                 <field name="exchange_rate"/>
                 <field name="currency_id"/>
             </field>
+            <field name="partner_id" position="before">
+                <field name="invoice_number"/>
+            </field>
             <field name="partner_id" position="after">
                 <field string="Document Type" name="document_type_id" attrs="{'readonly':[['state','not in',['draft']]]}"/>
                 <field name="hide_apply_retention" invisible="1"/>

@@ -116,6 +116,7 @@ class Partner(models.Model):
 
 class account_invoice(models.Model):
     _inherit = "account.invoice"
+    # _rec_name = 'month_year_inv'
 
     # Detraction
     detrac_id = fields.Many2one('sunat.detracciones', 'Detraccion')
@@ -128,6 +129,8 @@ class account_invoice(models.Model):
     detraction_residual = fields.Monetary(string="Detraction To Pay", compute="_detraction_residual", store=True)
     # Total a Pagar
     total_pagar = fields.Monetary(string="Total a Pagar2", compute="_total_pagar_factura")
+    # Numero de Factura del Proveedor
+    invoice_number = fields.Char(string="Numero de Factura")
 
     # Campos necesarios para el TXT
     fourth_suspension = fields.Boolean(string="Suspencion de Cuarta")
