@@ -124,6 +124,7 @@ class account_invoice(models.Model):
     apply_retention = fields.Boolean(string="Apply Retention")
     # Detraction Paid
     detraccion_paid = fields.Boolean(string="Detraction Paid", compute="_detraction_is_paid", store=True)
+    #Saldo de Detraccion
     detraction_residual = fields.Monetary(string="Detraction To Pay", compute="_detraction_residual", store=True)
     # Total a Pagar
     total_pagar = fields.Monetary(string="Total a Pagar2", compute="_total_pagar_factura")
@@ -132,8 +133,8 @@ class account_invoice(models.Model):
 
     # Campos necesarios para el TXT
     fourth_suspension = fields.Boolean(string="Suspencion de Cuarta")
-
     operation_type = fields.Selection(string="Tipo de Operación", selection=[('1.-Exportación', '1.-Exportación')])
+    hide_dua_fields = fields.Boolean(compute="_hide_dua_fields")
     num_dua = fields.Char(string="N° DUA")
     year_emission_dua = fields.Char(string="Año de emisión de la DUA")
 
@@ -151,8 +152,8 @@ class account_invoice(models.Model):
     date_document_modifies = fields.Date(string="Fecha del documento que modifica")
     type_document_modifies_id = fields.Many2one('sunat.document_type', 'Tipo de Documento que Modifica')
     num_document_modifies = fields.Char(string="Numero del documento que modifica")
+    num_dua_document_modifies = fields.Char(string="Número DUA")
     code_dua = fields.Many2one('sunat.customs_code', 'Código DUA')
-    num_dua = fields.Char(string="Número DUA")
     # Invoice
     series_document_modifies = fields.Char(string="Serie del documento que modifica")
     document_modify = fields.Boolean(string="Modifica Documento")
@@ -241,7 +242,7 @@ class account_invoice(models.Model):
                           rec.type_document_modifies_id.number or '',  # Tipo del documento que modifica -> 27
                           rec.num_document_modifies or '',  # Numero del documento que modifica -> 28
                           rec.code_dua.number or '',  # Codigo DUA -> 29
-                          rec.num_dua or '',  # Numero DUA -> 30
+                          rec.num_dua_document_modifies or '',  # Numero DUA -> 30
                           rec.date_detraction or '',  # Fecha de Detracciones -> 31
                           rec.num_detraction or '',  # Numero de Detracciones -> 32
                           rec.proof_mark or '',  # Marca de Comprobante -> 33
@@ -396,11 +397,20 @@ class account_invoice(models.Model):
     @api.depends('document_type_id')
     @api.multi
     def _compute_hide_apply_retention(self):
-        for record in self:
-            if record.document_type_id.number == '02':
-                record.hide_apply_retention = False
+        for rec in self:
+            if rec.document_type_id.number == '02':
+                rec.hide_apply_retention = False
             else:
-                record.hide_apply_retention = True
+                rec.hide_apply_retention = True
+
+    @api.depends('document_type_id')
+    @api.multi
+    def _hide_dua_fields(self):
+        for rec in self:
+            if rec.document_type_id.number == '50':
+                rec.hide_dua_fields = False
+            else:
+                rec.hide_dua_fields = True
 
     @api.depends('detrac_id')
     @api.multi
@@ -449,9 +459,9 @@ class account_invoice(models.Model):
     @api.depends('amount_total', 'detrac_id')
     @api.multi
     def _calcular_detrac(self):
-        for record in self:
-            record.detraccion = record.amount_total * \
-                                (record.detrac_id.detrac / 100)
+        for rec in self:
+            rec.detraccion = rec.amount_total * \
+                                (rec.detrac_id.detrac / 100)
 
     # # Trial Action
     # @api.multi
@@ -463,10 +473,10 @@ class account_invoice(models.Model):
     @api.depends('residual_signed', 'detraccion')
     @api.multi
     def _total_pagar_factura(self):
-        for record in self:
-            if record.detraccion_paid == True:
-                record.total_pagar = record.residual_signed - record.detraccion
-                if record.total_pagar < 0:
-                    record.total_pagar = 0
+        for rec in self:
+            if rec.detraccion_paid == True:
+                rec.total_pagar = rec.residual_signed - rec.detraccion
+                if rec.total_pagar < 0:
+                    rec.total_pagar = 0
             else:
-                record.total_pagar = record.residual_signed
+                rec.total_pagar = rec.residual_signed

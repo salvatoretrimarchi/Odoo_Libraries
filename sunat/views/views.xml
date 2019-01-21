@@ -37,8 +37,9 @@
                 <field name="hide_apply_retention" invisible="1"/>
             </field>
             <field name="reference" position="after">
-                <field name="num_dua"/>
-                <field name="year_emission_dua"/>
+                <field name="hide_dua_fields" invisible="1"/>
+                <field name="num_dua" attrs="{'invisible':[('hide_dua_fields', '=', True)]}"/>
+                <field name="year_emission_dua" attrs="{'invisible':[('hide_dua_fields', '=', True)]}"/>
                 <field string="Detraccion" name="detrac_id" attrs="{'readonly':[['state','not in',['draft']]]}"/>
                 <field name="apply_retention" attrs="{'readonly':[['state','not in',['draft']]],'invisible':[('hide_apply_retention', '=', True)]}"/>
             </field>
@@ -58,7 +59,7 @@
                         <field name="type_document_modifies_id"/>
                         <field name="num_document_modifies"/>
                         <field name="code_dua"/>
-                        <field name="num_dua"/>
+                        <field name="num_dua_document_modifies"/>
                     </group>
                 </page>
                 <page string="Detracciones">
@@ -89,6 +90,13 @@
                 <field name="detraccion_paid" invisible="1"/>
                 <field name="detraction_residual" sum="Total"/>
                 <field name="total_pagar" sum="Total" invisible="1"/>
+            </field>
+            <field name="date_invoice" position="replace">
+                <field string="Fecha Contable" name="date_invoice"/>
+                <field string="Fecha del Documento" name="date_document"/>
+            </field>
+            <field name="number" position="replace">
+                <field name="invoice_number"/>
             </field>
         </field>
     </record>
