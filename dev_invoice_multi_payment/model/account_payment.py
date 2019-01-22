@@ -21,6 +21,8 @@ class account_payment(models.Model):
     invoice_ids = fields.Many2many('account.invoice', 'account_invoice_payment_rel', 'payment_id', 'invoice_id',
                                    string="Invoices", copy=False, readonly=False)
 
+    number_payment = fields.Integer(string="Numero de Pago Masivo")
+
     @api.multi
     @api.onchange('payment_for')
     def onchange_payment_for(self):
@@ -143,7 +145,7 @@ class account_payment(models.Model):
                 debit, credit, amount_currency, currency_id = \
                     aml_obj.with_context(date=self.payment_date). \
                         _compute_amount_fields(amt, self.currency_id,
-                                              self.company_id.currency_id)
+                                               self.company_id.currency_id)
                 # Write line corresponding to invoice payment
                 counterpart_aml_dict = \
                     self._get_shared_move_line_vals(debit,
@@ -172,7 +174,7 @@ class account_payment(models.Model):
             debit, credit, amount_currency, currency_id = \
                 aml_obj.with_context(date=self.payment_date). \
                     _compute_amount_fields(o_amt, self.currency_id,
-                                          self.company_id.currency_id)
+                                           self.company_id.currency_id)
             # Write line corresponding to invoice payment
             counterpart_aml_dict = \
                 self._get_shared_move_line_vals(debit,
